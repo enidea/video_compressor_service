@@ -1,18 +1,38 @@
 use std::{
-    fs::File,
+    env,
+    fs::{self, File},
     io::{Read, Write},
     net::TcpListener,
+    path::Path,
 };
 
 fn main() -> anyhow::Result<()> {
-    let tcp_listener = TcpListener::bind(shared::SERVER_ADDR)?;
+    dotenvy::dotenv()?;
+
+    let download_dir = env::var("DOWNLOAD_DIR")?;
+    let video_file_name = env::var("VIDEO_FILE_NAME")?;
+
+    let tcp_listener = TcpListener::bind(env::var("SERVER_ADDR")?)?;
 
     for tcp_stream in tcp_listener.incoming() {
         match tcp_stream {
             Ok(mut tcp_stream) => {
                 println!("Accepted connection from: {}", tcp_stream.peer_addr()?);
 
-                let mut file = File::create("download/video.mp4")?;
+                if !Path::new(&download_dir).exists() {
+                    fs::create_dir(&download_dir)?;
+                }
+
+                let file_name = format!(
+                    "{}_{}.{}",
+                    video_file_name,
+                    chrono::Local::now().timestamp(),
+                    "mp4"
+                );
+
+                let file_path = Path::new(&download_dir).join(file_name);
+
+                let mut file = File::create(file_path)?;
                 let mut buf = [0; 4096];
 
                 loop {

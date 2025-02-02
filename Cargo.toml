@@ -4,3 +4,4 @@ rust-version = "1.83.0"
 
 [workspace.dependencies]
 anyhow = "1.0.44"
+dotenvy = "0.15.0"

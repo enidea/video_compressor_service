@@ -1,6 +1,7 @@
 mod prompts;
 
 use std::{
+    env,
     fs::File,
     io::{Read, Write},
     net::TcpStream,
@@ -20,11 +21,13 @@ fn prompt(message_prompt: &str) -> anyhow::Result<String> {
 }
 
 fn main() -> anyhow::Result<()> {
+    dotenvy::dotenv()?;
+
     let video_path: String = prompt(prompts::VIDEO_PATH_PROMPT)?.trim().to_string();
 
     let mut video_file = File::open(video_path)?;
 
-    let mut tcp_stream = TcpStream::connect(shared::SERVER_ADDR)?;
+    let mut tcp_stream = TcpStream::connect(env::var("SERVER_ADDR")?)?;
 
     let mut buf = [0; 4096];
 
