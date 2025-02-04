@@ -11,6 +11,7 @@ fn main() -> anyhow::Result<()> {
 
     let download_dir = env::var("DOWNLOAD_DIR")?;
     let video_file_name = env::var("VIDEO_FILE_NAME")?;
+    let max_packet_size = env::var("MAX_PACKET_SIZE")?.parse::<usize>()?;
 
     let tcp_listener = TcpListener::bind(env::var("SERVER_ADDR")?)?;
 
@@ -33,7 +34,7 @@ fn main() -> anyhow::Result<()> {
                 let file_path = Path::new(&download_dir).join(file_name);
 
                 let mut file = File::create(file_path)?;
-                let mut buf = [0; 4096];
+                let mut buf = vec![0; max_packet_size];
 
                 loop {
                     let len = tcp_stream.read(&mut buf)?;
