@@ -5,6 +5,7 @@ use std::{
     fs::File,
     io::{Read, Write},
     net::TcpStream,
+    path::Path,
 };
 
 fn prompt(message_prompt: &str) -> anyhow::Result<String> {
@@ -17,7 +18,7 @@ fn prompt(message_prompt: &str) -> anyhow::Result<String> {
         return Err(anyhow::anyhow!("Empty input"));
     }
 
-    Ok(message)
+    Ok(message.trim().to_string())
 }
 
 fn main() -> anyhow::Result<()> {
@@ -25,9 +26,19 @@ fn main() -> anyhow::Result<()> {
 
     let max_packet_size = env::var("MAX_PACKET_SIZE")?.parse::<usize>()?;
 
-    let video_path: String = prompt(prompts::VIDEO_PATH_PROMPT)?.trim().to_string();
+    let video_path_str = prompt(prompts::VIDEO_PATH_PROMPT)?;
 
-    let mut video_file = File::open(video_path)?;
+    let video_path = Path::new(&video_path_str);
+
+    if !video_path.exists() {
+        return Err(anyhow::anyhow!("File does not exist"));
+    }
+
+    if video_path.extension().unwrap() == "mp4" {
+        return Err(anyhow::anyhow!("Video file must be an mp4 file"));
+    }
+
+    let mut video_file = File::open(video_path_str)?;
 
     let mut tcp_stream = TcpStream::connect(env::var("SERVER_ADDR")?)?;
 
