@@ -3,14 +3,10 @@ mod prompts;
 mod video_file_validator;
 
 use prompt::prompt;
+use shared::file_uploader::FileUploader;
 use video_file_validator::VideoFileValidator;
 
-use std::{
-    env,
-    fs::File,
-    io::{Read, Write},
-    net::TcpStream,
-};
+use std::{env, fs::File, net::TcpStream};
 
 pub fn run() -> anyhow::Result<()> {
     dotenvy::dotenv()?;
@@ -25,17 +21,5 @@ pub fn run() -> anyhow::Result<()> {
 
     let mut tcp_stream = TcpStream::connect(env::var("SERVER_ADDR")?)?;
 
-    let mut buf = vec![0; max_packet_size];
-
-    loop {
-        let len = video_file.read(&mut buf)?;
-
-        if len == 0 {
-            break;
-        }
-
-        tcp_stream.write_all(&buf[..len])?;
-    }
-
-    Ok(())
+    FileUploader::upload_file(&mut tcp_stream, &mut video_file)
 }
