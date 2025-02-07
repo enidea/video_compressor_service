@@ -1,8 +1,8 @@
 use std::path::Path;
 
-pub struct VideoFileValidator;
+pub struct VideoFilePathValidator;
 
-impl VideoFileValidator {
+impl VideoFilePathValidator {
     pub fn validate(video_path: &str) -> anyhow::Result<()> {
         let video_path = Path::new(video_path);
 
