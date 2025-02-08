@@ -1,8 +1,8 @@
-mod prompt;
-mod prompts;
+mod cli_args;
 mod video_file_validator;
 
-use prompt::prompt;
+use clap::Parser;
+use cli_args::CliArgs;
 use shared::FileUploader;
 use video_file_validator::VideoFilePathValidator;
 
@@ -11,11 +11,11 @@ use std::{env, fs::File, net::TcpStream};
 pub fn run() -> anyhow::Result<()> {
     dotenvy::dotenv()?;
 
-    let video_path_str = prompt(prompts::VIDEO_PATH_PROMPT)?;
+    let cli_args = CliArgs::parse();
 
-    VideoFilePathValidator::validate(&video_path_str)?;
+    VideoFilePathValidator::validate(&cli_args.file_path)?;
 
-    let mut video_file = File::open(video_path_str)?;
+    let mut video_file = File::open(&cli_args.file_path)?;
     let mut tcp_stream = TcpStream::connect(env::var("SERVER_ADDR")?)?;
 
     FileUploader::upload_file(&mut tcp_stream, &mut video_file)
