@@ -27,7 +27,7 @@ pub fn run() -> anyhow::Result<()> {
                 let file_name = format!(
                     "{}_{}.{}",
                     video_file_name,
-                    chrono::Local::now().timestamp(),
+                    chrono::Local::now().format("%Y%m%d%H%M%S"),
                     "mp4"
                 );
 
