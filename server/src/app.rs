@@ -1,17 +1,17 @@
 use std::{
     env,
-    fs::{self, File},
-    io::{Read, Write},
+    fs::{self},
     net::TcpListener,
     path::Path,
 };
+
+use shared::FileDownloader;
 
 pub fn run() -> anyhow::Result<()> {
     dotenvy::dotenv()?;
 
     let download_dir = env::var("DOWNLOAD_DIR")?;
     let video_file_name = env::var("VIDEO_FILE_NAME")?;
-    let max_packet_size = env::var("MAX_PACKET_SIZE")?.parse::<usize>()?;
 
     let tcp_listener = TcpListener::bind(env::var("SERVER_ADDR")?)?;
 
@@ -33,18 +33,7 @@ pub fn run() -> anyhow::Result<()> {
 
                 let file_path = Path::new(&download_dir).join(file_name);
 
-                let mut file = File::create(file_path)?;
-                let mut buf = vec![0; max_packet_size];
-
-                loop {
-                    let len = tcp_stream.read(&mut buf)?;
-
-                    if len == 0 {
-                        break;
-                    }
-
-                    file.write_all(&buf[..len])?;
-                }
+                FileDownloader::download_file(&mut tcp_stream, &file_path)?;
             }
             Err(e) => {
                 eprintln!("Error accepting connection: {}", e);

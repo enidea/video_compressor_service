@@ -3,7 +3,7 @@ mod prompts;
 mod video_file_validator;
 
 use prompt::prompt;
-use shared::file_uploader::FileUploader;
+use shared::FileUploader;
 use video_file_validator::VideoFilePathValidator;
 
 use std::{env, fs::File, net::TcpStream};
