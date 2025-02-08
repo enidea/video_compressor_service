@@ -1,19 +1,18 @@
 use std::{
-    env,
     fs::{self},
     net::TcpListener,
     path::Path,
 };
 
-use shared::FileDownloader;
+use shared::{config_loader, FileDownloader};
 
 pub fn run() -> anyhow::Result<()> {
-    dotenvy::dotenv()?;
+    let app_config = config_loader::load_config()?;
 
-    let download_dir = env::var("DOWNLOAD_DIR")?;
-    let video_file_name = env::var("VIDEO_FILE_NAME")?;
+    let download_dir = app_config.download_dir;
+    let video_file_name = app_config.video_file_name;
 
-    let tcp_listener = TcpListener::bind(env::var("SERVER_ADDR")?)?;
+    let tcp_listener = TcpListener::bind(app_config.server_addr)?;
 
     for tcp_stream in tcp_listener.incoming() {
         match tcp_stream {

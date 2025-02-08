@@ -3,20 +3,20 @@ mod video_file_validator;
 
 use clap::Parser;
 use cli_args::CliArgs;
-use shared::FileUploader;
+use shared::{config_loader, FileUploader};
 use video_file_validator::VideoFilePathValidator;
 
-use std::{env, fs::File, net::TcpStream};
+use std::{fs::File, net::TcpStream};
 
 pub fn run() -> anyhow::Result<()> {
-    dotenvy::dotenv()?;
+    let app_config = config_loader::load_config()?;
 
     let cli_args = CliArgs::parse();
 
     VideoFilePathValidator::validate(&cli_args.file_path)?;
 
     let mut video_file = File::open(&cli_args.file_path)?;
-    let mut tcp_stream = TcpStream::connect(env::var("SERVER_ADDR")?)?;
+    let mut tcp_stream = TcpStream::connect(app_config.server_addr)?;
 
     FileUploader::upload_file(&mut tcp_stream, &mut video_file)
 }

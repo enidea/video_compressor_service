@@ -1,3 +1,4 @@
+pub mod config_loader;
 pub mod file_downloader;
 pub mod file_uploader;
 

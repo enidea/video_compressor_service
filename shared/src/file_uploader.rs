@@ -1,19 +1,18 @@
 use std::{
-    env,
     fs::File,
     io::{Read, Write},
     net::TcpStream,
 };
 
+use crate::config_loader;
+
 pub struct FileUploader;
 
 impl FileUploader {
     pub fn upload_file(tcp_stream: &mut TcpStream, file: &mut File) -> anyhow::Result<()> {
-        dotenvy::dotenv()?;
+        let app_config = config_loader::load_config()?;
 
-        let max_packet_size = env::var("MAX_PACKET_SIZE")?.parse::<usize>()?;
-
-        let mut buf = vec![0; max_packet_size];
+        let mut buf = vec![0; app_config.max_packet_size];
 
         loop {
             let len = file.read(&mut buf)?;
