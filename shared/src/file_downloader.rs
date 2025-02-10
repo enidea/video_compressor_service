@@ -10,7 +10,7 @@ use crate::config_loader;
 pub struct FileDownloader;
 
 impl FileDownloader {
-    pub fn download_file(tcp_stream: &mut TcpStream, file_path: &PathBuf) -> anyhow::Result<()> {
+    pub fn download_file(tcp_stream: &mut TcpStream, file_path: &PathBuf) -> anyhow::Result<File> {
         let app_config = config_loader::load_config()?;
 
         let mut file = File::create(file_path)?;
@@ -20,13 +20,13 @@ impl FileDownloader {
         loop {
             let len = tcp_stream.read(&mut buf)?;
 
-            if len == 0 {
+            if len < app_config.max_packet_size {
                 break;
             }
 
             file.write_all(&buf[..len])?;
         }
 
-        Ok(())
+        Ok(file)
     }
 }

@@ -1,5 +1,6 @@
 use std::{
     fs::{self},
+    io::Write,
     net::TcpListener,
     path::Path,
 };
@@ -32,7 +33,17 @@ pub fn run() -> anyhow::Result<()> {
 
                 let file_path = Path::new(&download_dir).join(file_name);
 
-                FileDownloader::download_file(&mut tcp_stream, &file_path)?;
+                match FileDownloader::download_file(&mut tcp_stream, &file_path) {
+                    Ok(_) => tcp_stream
+                        .write_all(&protocol::Response::new(protocol::Status::Ok).to_bytes())?,
+                    Err(e) => {
+                        tcp_stream.write_all(
+                            &protocol::Response::new(protocol::Status::BadRequest).to_bytes(),
+                        )?;
+
+                        return Err(anyhow::anyhow!("Error downloading file: {}", e));
+                    }
+                };
             }
             Err(e) => {
                 eprintln!("Error accepting connection: {}", e);

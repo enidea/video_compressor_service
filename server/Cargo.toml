@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 shared = { path = "../shared" }
+protocol = { path = "../protocol" }
 anyhow.workspace = true
 dotenvy.workspace = true
 chrono = "0.4.39"
