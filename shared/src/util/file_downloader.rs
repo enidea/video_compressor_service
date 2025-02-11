@@ -5,13 +5,13 @@ use std::{
     path::PathBuf,
 };
 
-use super::config_loader;
+use crate::app;
 
 pub struct FileDownloader;
 
 impl FileDownloader {
     pub fn download_file(tcp_stream: &mut TcpStream, file_path: &PathBuf) -> anyhow::Result<File> {
-        let app_config = config_loader::load_config()?;
+        let app_config = app::Config::new()?;
 
         let mut file = File::create(file_path)?;
 

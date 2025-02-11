@@ -1,5 +1,5 @@
-pub mod response;
-pub mod status;
+mod response;
+mod status;
 
 pub use response::Response;
 pub use status::Status;

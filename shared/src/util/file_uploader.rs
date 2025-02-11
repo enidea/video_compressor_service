@@ -4,13 +4,13 @@ use std::{
     net::TcpStream,
 };
 
-use super::config_loader;
+use crate::app;
 
 pub struct FileUploader;
 
 impl FileUploader {
     pub fn upload_file(tcp_stream: &mut TcpStream, file: &mut File) -> anyhow::Result<()> {
-        let app_config = config_loader::load_config()?;
+        let app_config = app::Config::new()?;
 
         let mut buf = vec![0; app_config.max_packet_size];
 

@@ -3,13 +3,13 @@ mod video_file_validator;
 
 use clap::Parser;
 use cli_args::CliArgs;
-use shared::{protocol, util};
+use shared::{app, protocol, util};
 use video_file_validator::VideoFilePathValidator;
 
 use std::{fs::File, net::TcpStream};
 
 pub fn run() -> anyhow::Result<()> {
-    let app_config = util::config_loader::load_config()?;
+    let app_config = app::Config::new()?;
 
     let cli_args = CliArgs::parse();
 

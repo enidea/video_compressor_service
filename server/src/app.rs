@@ -5,10 +5,10 @@ use std::{
     path::Path,
 };
 
-use shared::{protocol, util};
+use shared::{app, protocol, util};
 
 pub fn run() -> anyhow::Result<()> {
-    let app_config = util::config_loader::load_config()?;
+    let app_config = app::Config::new()?;
 
     let download_dir = app_config.download_dir;
     let video_file_name = app_config.video_file_name;
