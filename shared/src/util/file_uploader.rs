@@ -4,7 +4,7 @@ use std::{
     net::TcpStream,
 };
 
-use crate::config_loader;
+use super::config_loader;
 
 pub struct FileUploader;
 

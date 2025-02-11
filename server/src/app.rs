@@ -5,10 +5,10 @@ use std::{
     path::Path,
 };
 
-use shared::{config_loader, FileDownloader};
+use shared::{protocol, util};
 
 pub fn run() -> anyhow::Result<()> {
-    let app_config = config_loader::load_config()?;
+    let app_config = util::config_loader::load_config()?;
 
     let download_dir = app_config.download_dir;
     let video_file_name = app_config.video_file_name;
@@ -33,7 +33,7 @@ pub fn run() -> anyhow::Result<()> {
 
                 let file_path = Path::new(&download_dir).join(file_name);
 
-                match FileDownloader::download_file(&mut tcp_stream, &file_path) {
+                match util::FileDownloader::download_file(&mut tcp_stream, &file_path) {
                     Ok(_) => tcp_stream
                         .write_all(&protocol::Response::new(protocol::Status::Ok).to_bytes())?,
                     Err(e) => {

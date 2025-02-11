@@ -5,7 +5,7 @@ use std::{
     path::PathBuf,
 };
 
-use crate::config_loader;
+use super::config_loader;
 
 pub struct FileDownloader;
 

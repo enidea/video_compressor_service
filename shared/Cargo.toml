@@ -4,7 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-anyhow.workspace = true
 config = "0.15.7"
+enum-primitive-derive = "0.3.0"
+num-traits = "0.2.19"
+anyhow.workspace = true
 dotenvy.workspace = true
 serde.workspace = true

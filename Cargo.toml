@@ -1,5 +1,5 @@
 [workspace]
-members = ["client", "protocol", "server", "shared"]
+members = ["client", "server", "shared"]
 rust-version = "1.83.0"
 resolver = "2"
 
