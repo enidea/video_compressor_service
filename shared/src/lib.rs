@@ -1,4 +1,5 @@
 pub mod config_loader;
+pub mod data_size;
 pub mod file_downloader;
 pub mod file_uploader;
 pub mod tcp_util;

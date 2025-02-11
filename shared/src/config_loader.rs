@@ -7,6 +7,7 @@ pub struct AppConfig {
     pub download_dir: String,
     pub video_file_name: String,
     pub max_packet_size: usize,
+    pub max_file_size_gb: f64,
 }
 
 pub fn load_config() -> anyhow::Result<AppConfig> {
