@@ -5,7 +5,7 @@ use std::{
     path::Path,
 };
 
-use shared::{app, protocol, util};
+use shared::{app, mmp, util};
 
 pub fn run() -> anyhow::Result<()> {
     let app_config = app::Config::new()?;
@@ -34,12 +34,12 @@ pub fn run() -> anyhow::Result<()> {
                 let file_path = Path::new(&download_dir).join(file_name);
 
                 match util::FileDownloader::download_file(&mut tcp_stream, &file_path) {
-                    Ok(_) => tcp_stream
-                        .write_all(&protocol::Response::new(protocol::Status::Ok).to_bytes())?,
+                    Ok(_) => {
+                        tcp_stream.write_all(&mmp::Response::new(mmp::Status::Ok).to_bytes())?
+                    }
                     Err(e) => {
-                        tcp_stream.write_all(
-                            &protocol::Response::new(protocol::Status::BadRequest).to_bytes(),
-                        )?;
+                        tcp_stream
+                            .write_all(&mmp::Response::new(mmp::Status::BadRequest).to_bytes())?;
 
                         return Err(anyhow::anyhow!("Error downloading file: {}", e));
                     }

@@ -5,7 +5,7 @@ mod video_file_validator;
 use clap::Parser;
 use cli_args::CliArgs;
 use command_prompter::CommandPrompter;
-use shared::{app, protocol, util};
+use shared::{app, mmp, util};
 use video_file_validator::VideoFilePathValidator;
 
 use std::{fs::File, net::TcpStream};
@@ -26,16 +26,16 @@ pub fn run() -> anyhow::Result<()> {
 
     util::FileUploader::upload_file(&mut tcp_stream, &mut video_file)?;
 
-    let response = protocol::Response::from_bytes(&util::TcpUtil::read_bytes(&mut tcp_stream)?)?;
+    let response = mmp::Response::from_bytes(&util::TcpUtil::read_bytes(&mut tcp_stream)?)?;
 
     match response.status {
-        protocol::Status::Ok => {
+        mmp::Status::Ok => {
             println!("File uploaded successfully!");
         }
-        protocol::Status::BadRequest => {
+        mmp::Status::BadRequest => {
             eprintln!("Error uploading file!");
         }
-        protocol::Status::InternalServerError => {
+        mmp::Status::InternalServerError => {
             eprintln!("Server error!");
         }
     }
