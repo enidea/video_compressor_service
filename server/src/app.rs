@@ -1,11 +1,6 @@
-use std::{
-    fs::{self},
-    io::Write,
-    net::TcpListener,
-    path::Path,
-};
+use std::net::TcpListener;
 
-use shared::{app, mmp, util};
+use shared::{app, mmp};
 
 pub fn run() -> anyhow::Result<()> {
     let app_config = app::Config::new()?;
@@ -17,33 +12,39 @@ pub fn run() -> anyhow::Result<()> {
 
     for tcp_stream in tcp_listener.incoming() {
         match tcp_stream {
-            Ok(mut tcp_stream) => {
+            Ok(tcp_stream) => {
                 println!("Accepted connection from: {}", tcp_stream.peer_addr()?);
 
-                if !Path::new(&download_dir).exists() {
-                    fs::create_dir(&download_dir)?;
-                }
+                let mut mmp_stream = mmp::Stream::new(tcp_stream);
 
-                let file_name = format!(
-                    "{}_{}.{}",
-                    video_file_name,
-                    chrono::Local::now().format("%Y%m%d%H%M%S"),
-                    "mp4"
-                );
+                let packet = mmp_stream.receive_packet()?;
 
-                let file_path = Path::new(&download_dir).join(file_name);
+                println!("Received packet: {:?}", packet);
 
-                match util::FileDownloader::download_file(&mut tcp_stream, &file_path) {
-                    Ok(_) => {
-                        tcp_stream.write_all(&mmp::Response::new(mmp::Status::Ok).to_bytes())?
-                    }
-                    Err(e) => {
-                        tcp_stream
-                            .write_all(&mmp::Response::new(mmp::Status::BadRequest).to_bytes())?;
+                // if !Path::new(&download_dir).exists() {
+                //     fs::create_dir(&download_dir)?;
+                // }
 
-                        return Err(anyhow::anyhow!("Error downloading file: {}", e));
-                    }
-                };
+                // let file_name = format!(
+                //     "{}_{}.{}",
+                //     video_file_name,
+                //     chrono::Local::now().format("%Y%m%d%H%M%S"),
+                //     "mp4"
+                // );
+
+                // let file_path = Path::new(&download_dir).join(file_name);
+
+                // match util::FileDownloader::download_file(&mut tcp_stream, &file_path) {
+                //     Ok(_) => {
+                //         tcp_stream.write_all(&mmp::Response::new(mmp::Status::Ok).to_bytes())?
+                //     }
+                //     Err(e) => {
+                //         tcp_stream
+                //             .write_all(&mmp::Response::new(mmp::Status::BadRequest).to_bytes())?;
+
+                //         return Err(anyhow::anyhow!("Error downloading file: {}", e));
+                //     }
+                // };
             }
             Err(e) => {
                 eprintln!("Error accepting connection: {}", e);
