@@ -27,9 +27,12 @@ pub fn run() -> anyhow::Result<()> {
 
     let mut mmp_stream = mmp::Stream::new(tcp_stream);
 
-    let packet = mmp::Packet::new(json!({
-        "command": command,
-    }));
+    let packet = mmp::Packet::new(
+        json!({
+            "command": command,
+        }),
+        mmp::MediaType::Mp4,
+    );
 
     mmp_stream.send_packet(&packet);
 

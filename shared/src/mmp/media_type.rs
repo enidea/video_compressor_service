@@ -4,3 +4,7 @@ use strum_macros::{Display, EnumString};
 pub enum MediaType {
     Mp4,
 }
+
+impl MediaType {
+    pub const HEADER_SIZE_BYTES: usize = 1;
+}

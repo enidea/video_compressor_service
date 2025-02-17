@@ -1,5 +1,6 @@
 // mmp is multiple media protocol
 
+mod json;
 mod media_type;
 mod packet;
 mod response;
