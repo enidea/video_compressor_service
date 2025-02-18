@@ -1,4 +1,6 @@
 pub mod data_size;
+pub mod slice;
+
 mod file_downloader;
 mod file_uploader;
 mod tcp_util;

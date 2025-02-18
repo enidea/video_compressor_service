@@ -25,7 +25,7 @@ impl Stream {
 
         let size = self.tcp_stream.read(&mut buf)?;
 
-        let packet = Packet::from_bytes(&buf[..size])?;
+        let packet = Packet::from_bytes(&mut &buf[..size])?;
 
         Ok(packet)
     }

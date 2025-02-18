@@ -7,6 +7,7 @@ mod response;
 mod status;
 mod stream;
 
+pub use json::Json;
 pub use media_type::MediaType;
 pub use packet::Packet;
 pub use response::Response;
