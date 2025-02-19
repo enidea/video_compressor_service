@@ -3,7 +3,6 @@ use std::{
     net::TcpStream,
 };
 
-use crate::app;
 
 use super::Packet;
 
@@ -13,9 +12,7 @@ pub struct Stream {
 }
 
 impl Stream {
-    pub fn new(tcp_stream: TcpStream) -> Self {
-        let max_packet_size = app::Config::new().unwrap().max_packet_size;
-
+    pub fn new(tcp_stream: TcpStream, max_packet_size: usize) -> Self {
         Self {
             max_packet_size,
             tcp_stream,

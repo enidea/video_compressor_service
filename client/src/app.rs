@@ -25,7 +25,7 @@ pub fn run() -> anyhow::Result<()> {
     let video_file = File::open(&cli_args.file_path)?;
     let tcp_stream = TcpStream::connect(app_config.server_addr)?;
 
-    let mut mmp_stream = mmp::Stream::new(tcp_stream);
+    let mut mmp_stream = mmp::Stream::new(tcp_stream, app_config.max_packet_size);
 
     let packet = mmp::Packet::new(
         mmp::Json::new(json!({

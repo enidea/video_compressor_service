@@ -15,7 +15,7 @@ pub fn run() -> anyhow::Result<()> {
             Ok(tcp_stream) => {
                 println!("Accepted connection from: {}", tcp_stream.peer_addr()?);
 
-                let mut mmp_stream = mmp::Stream::new(tcp_stream);
+                let mut mmp_stream = mmp::Stream::new(tcp_stream, app_config.max_packet_size);
 
                 let packet = mmp_stream.receive_packet()?;
 
