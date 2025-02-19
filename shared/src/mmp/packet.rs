@@ -4,7 +4,7 @@ use crate::util::slice::SliceExt;
 
 use super::{Json, MediaType};
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Packet {
     pub json: Json,
     pub media_type: MediaType,
@@ -15,15 +15,33 @@ impl Packet {
         Self { json, media_type }
     }
 
-    pub fn to_bytes(&self) -> Vec<u8> {
-        let json = self.json.data.to_string();
-        let media_type = self.media_type.to_string();
+    pub fn generate_header_bytes(&self) -> Vec<u8> {
+        let json_str = self.json.data.to_string();
+        let media_type_str = self.media_type.to_string();
 
         let mut bytes = vec![];
-        bytes.extend_from_slice((json.len() as u16).to_be_bytes().as_ref());
-        bytes.push(media_type.len() as u8);
-        bytes.extend_from_slice(json.as_bytes());
-        bytes.extend_from_slice(media_type.as_bytes());
+        bytes.extend_from_slice((json_str.len() as u16).to_be_bytes().as_ref());
+        bytes.push(media_type_str.len() as u8);
+
+        bytes
+    }
+
+    pub fn generate_json_bytes(&self) -> Vec<u8> {
+        let json_str = self.json.data.to_string();
+
+        json_str.as_bytes().to_vec()
+    }
+
+    pub fn generate_media_type_bytes(&self) -> Vec<u8> {
+        let media_type_str = self.media_type.to_string();
+
+        media_type_str.as_bytes().to_vec()
+    }
+
+    pub fn generate_bytes(&self) -> Vec<u8> {
+        let mut bytes = self.generate_header_bytes();
+        bytes.extend_from_slice(&self.generate_json_bytes());
+        bytes.extend_from_slice(&self.generate_media_type_bytes());
 
         bytes
     }
