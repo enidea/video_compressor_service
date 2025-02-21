@@ -1,70 +1,63 @@
-use std::str::FromStr;
+use super::{Json, MediaType, Payload};
 
-use crate::util::slice::SliceExt;
+#[derive(Debug)]
+pub struct PacketHeader {
+    pub json_size: usize,
+    pub media_type_size: usize,
+    pub payload_size: usize,
+}
 
-use super::{Json, MediaType};
+impl PacketHeader {
+    pub const HEADER_SIZE_BYTES: usize =
+        Json::HEADER_SIZE_BYTES + MediaType::HEADER_SIZE_BYTES + Payload::HEADER_SIZE_BYTES;
+
+    pub fn generate_bytes(&self) -> Vec<u8> {
+        let mut bytes = vec![];
+
+        bytes.push(self.json_size as u8);
+        bytes.extend_from_slice(&(self.media_type_size as u16).to_be_bytes());
+        bytes.extend_from_slice(&(self.payload_size as u64).to_be_bytes());
+
+        bytes
+    }
+
+    pub fn generate_from_bytes(bytes: &[u8]) -> anyhow::Result<Self> {
+        if bytes.len() < Self::HEADER_SIZE_BYTES {
+            panic!("Not enough bytes to generate PacketHeader");
+        }
+
+        let (json_size_bytes, bytes) = bytes.split_at(Json::HEADER_SIZE_BYTES);
+        let (media_type_size_bytes, bytes) = bytes.split_at(MediaType::HEADER_SIZE_BYTES);
+
+        Ok(Self {
+            json_size: u16::from_be_bytes(json_size_bytes.try_into().unwrap()) as usize,
+            media_type_size: u8::from_be_bytes(media_type_size_bytes.try_into().unwrap()) as usize,
+            payload_size: u64::from_be_bytes(bytes.try_into().unwrap()) as usize,
+        })
+    }
+}
 
 #[derive(Debug)]
 pub struct Packet {
     pub json: Json,
     pub media_type: MediaType,
+    pub payload: Payload,
 }
 
 impl Packet {
-    pub fn new(json: Json, media_type: MediaType) -> Self {
-        Self { json, media_type }
-    }
-
-    pub fn generate_header_bytes(&self) -> Vec<u8> {
-        let json_str = self.json.data.to_string();
-        let media_type_str = self.media_type.to_string();
-
-        let mut bytes = vec![];
-        bytes.extend_from_slice((json_str.len() as u16).to_be_bytes().as_ref());
-        bytes.push(media_type_str.len() as u8);
-
-        bytes
-    }
-
-    pub fn generate_json_bytes(&self) -> Vec<u8> {
-        let json_str = self.json.data.to_string();
-
-        json_str.as_bytes().to_vec()
-    }
-
-    pub fn generate_media_type_bytes(&self) -> Vec<u8> {
-        let media_type_str = self.media_type.to_string();
-
-        media_type_str.as_bytes().to_vec()
-    }
-
-    pub fn generate_bytes(&self) -> Vec<u8> {
-        let mut bytes = self.generate_header_bytes();
-        bytes.extend_from_slice(&self.generate_json_bytes());
-        bytes.extend_from_slice(&self.generate_media_type_bytes());
-
-        bytes
-    }
-
-    pub fn from_bytes(bytes: &mut &[u8]) -> anyhow::Result<Self> {
-        if bytes.is_empty() {
-            return Err(anyhow::anyhow!("Packet is empty"));
+    pub fn new(json: Json, media_type: MediaType, payload: Payload) -> Self {
+        Self {
+            json,
+            media_type,
+            payload,
         }
+    }
 
-        let json_size = u16::from_be_bytes(
-            bytes
-                .split_off_first_at(Json::HEADER_SIZE_BYTES)
-                .try_into()
-                .unwrap(),
-        ) as usize;
-
-        let media_type_size = bytes.split_off_first_at(MediaType::HEADER_SIZE_BYTES)[0] as usize;
-
-        let json = Json::new(serde_json::from_slice(bytes.split_off_first_at(json_size))?)?;
-        let media_type = MediaType::from_str(&String::from_utf8_lossy(
-            bytes.split_off_first_at(media_type_size),
-        ))?;
-
-        Ok(Self::new(json, media_type))
+    pub fn generate_header(&self) -> PacketHeader {
+        PacketHeader {
+            json_size: self.json.data.to_string().len(),
+            media_type_size: self.media_type.to_string().len(),
+            payload_size: self.payload.media_file_path.metadata().unwrap().len() as usize,
+        }
     }
 }

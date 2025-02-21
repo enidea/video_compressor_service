@@ -1,30 +1,31 @@
 use std::{
     fs::File,
-    io::{Read, Write},
-    net::TcpStream,
+    io::Write,
     path::PathBuf,
 };
 
-use crate::app;
+use super::TcpStreamWrapper;
 
 pub struct FileDownloader;
 
 impl FileDownloader {
-    pub fn download_file(tcp_stream: &mut TcpStream, file_path: &PathBuf) -> anyhow::Result<File> {
-        let app_config = app::Config::new()?;
-
+    pub fn download_file(
+        tcp_stream: &mut TcpStreamWrapper,
+        file_path: &PathBuf,
+        file_size: usize,
+        max_packet_size: usize,
+    ) -> anyhow::Result<File> {
         let mut file = File::create(file_path)?;
-
-        let mut buf = vec![0; app_config.max_packet_size];
+        let mut rest = file_size;
 
         loop {
-            let len = tcp_stream.read(&mut buf)?;
+            file.write_all(&tcp_stream.receive_exact(max_packet_size.min(rest))?)?;
 
-            if len < app_config.max_packet_size {
+            if rest <= max_packet_size {
                 break;
             }
 
-            file.write_all(&buf[..len])?;
+            rest -= max_packet_size;
         }
 
         Ok(file)

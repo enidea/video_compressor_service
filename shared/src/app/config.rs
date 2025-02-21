@@ -5,7 +5,7 @@ use config::Environment;
 pub struct Config {
     pub server_addr: String,
     pub download_dir: String,
-    pub video_file_name: String,
+    pub temp_file_name: String,
     pub max_packet_size: usize,
     pub max_file_size_gb: f64,
 }
