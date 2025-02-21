@@ -1,7 +1,7 @@
 use std::{
     fs::File,
     io::Write,
-    path::PathBuf,
+    path::Path,
 };
 
 use super::TcpStreamWrapper;
@@ -11,7 +11,7 @@ pub struct FileDownloader;
 impl FileDownloader {
     pub fn download_file(
         tcp_stream: &mut TcpStreamWrapper,
-        file_path: &PathBuf,
+        file_path: &Path,
         file_size: usize,
         max_packet_size: usize,
     ) -> anyhow::Result<File> {

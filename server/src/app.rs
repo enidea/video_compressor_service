@@ -1,8 +1,7 @@
 use std::{
     fs,
     net::TcpListener,
-    path::{Path, PathBuf},
-    str::FromStr,
+    path::Path,
 };
 
 use shared::{app, mmp};
@@ -32,10 +31,9 @@ pub fn run() -> anyhow::Result<()> {
                     "mp4"
                 );
 
-                let temp_file_path =
-                    PathBuf::from_str(&app_config.download_dir)?.join(temp_video_file_name);
+                let temp_file_path = Path::new(&app_config.download_dir).join(temp_video_file_name);
 
-                let (packet, _temp_file) = mmp_stream.receive_packet(temp_file_path.clone())?;
+                let (packet, _temp_file) = mmp_stream.receive_packet(&temp_file_path)?;
 
                 println!("Received packet: {:?}", packet);
             }

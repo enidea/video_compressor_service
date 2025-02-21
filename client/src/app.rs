@@ -9,16 +9,19 @@ use serde_json::json;
 use shared::{app, mmp};
 use video_file_validator::VideoFileValidator;
 
-use std::{net::TcpStream, path::PathBuf, str::FromStr};
+use std::{
+    net::TcpStream,
+    path::Path,
+};
 
 pub fn run() -> anyhow::Result<()> {
     let app_config = app::Config::new()?;
 
     let cli_args = CliArgs::parse();
 
-    let video_file_path = PathBuf::from_str(&cli_args.file_path)?;
+    let video_file_path = Path::new(&cli_args.file_path);
 
-    VideoFileValidator::validate(&video_file_path, app_config.max_file_size_gb)?;
+    VideoFileValidator::validate(video_file_path, app_config.max_file_size_gb)?;
 
     let command = CommandPrompter::prompt()?;
 
@@ -31,7 +34,7 @@ pub fn run() -> anyhow::Result<()> {
             "command": command,
         }))?,
         mmp::MediaType::Mp4,
-        mmp::Payload::new(video_file_path)?,
+        mmp::Payload::new(video_file_path.to_path_buf())?,
     );
 
     mmp_stream.send_packet(&packet)?;

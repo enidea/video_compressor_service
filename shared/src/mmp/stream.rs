@@ -1,4 +1,8 @@
-use std::{fs::File, net::TcpStream, path::PathBuf};
+use std::{
+    fs::File,
+    net::TcpStream,
+    path::Path,
+};
 
 use crate::util;
 
@@ -32,7 +36,7 @@ impl Stream {
         Ok(())
     }
 
-    pub fn receive_packet(&mut self, temp_file_path: PathBuf) -> anyhow::Result<(Packet, File)> {
+    pub fn receive_packet(&mut self, temp_file_path: &Path) -> anyhow::Result<(Packet, File)> {
         let header = PacketHeader::generate_from_bytes(
             &self
                 .tcp_stream
@@ -52,7 +56,7 @@ impl Stream {
 
         let tmp_file = util::FileDownloader::download_file(
             &mut self.tcp_stream,
-            &temp_file_path,
+            temp_file_path,
             header.payload_size as usize,
             self.max_packet_size,
         )?;
@@ -61,7 +65,7 @@ impl Stream {
             Packet {
                 json,
                 media_type,
-                payload: Payload::new(temp_file_path)?,
+                payload: Payload::new(temp_file_path.to_path_buf())?,
             },
             tmp_file,
         ))
