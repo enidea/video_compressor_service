@@ -17,6 +17,10 @@ impl Json {
         Ok(Self { data })
     }
 
+    pub fn get_size(&self) -> u16 {
+        serde_json::to_vec(&self.data).unwrap().len() as u16
+    }
+
     pub fn generate_bytes(&self) -> Vec<u8> {
         serde_json::to_vec(&self.data).unwrap()
     }

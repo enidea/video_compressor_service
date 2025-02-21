@@ -2,9 +2,9 @@ use super::{Json, MediaType, Payload};
 
 #[derive(Debug)]
 pub struct PacketHeader {
-    pub json_size: usize,
-    pub media_type_size: usize,
-    pub payload_size: usize,
+    pub json_size: u16,
+    pub media_type_size: u8,
+    pub payload_size: u64,
 }
 
 impl PacketHeader {
@@ -14,9 +14,9 @@ impl PacketHeader {
     pub fn generate_bytes(&self) -> Vec<u8> {
         let mut bytes = vec![];
 
-        bytes.push(self.json_size as u8);
-        bytes.extend_from_slice(&(self.media_type_size as u16).to_be_bytes());
-        bytes.extend_from_slice(&(self.payload_size as u64).to_be_bytes());
+        bytes.extend_from_slice(&self.json_size.to_be_bytes());
+        bytes.push(self.media_type_size);
+        bytes.extend_from_slice(&self.payload_size.to_be_bytes());
 
         bytes
     }
@@ -30,9 +30,9 @@ impl PacketHeader {
         let (media_type_size_bytes, bytes) = bytes.split_at(MediaType::HEADER_SIZE_BYTES);
 
         Ok(Self {
-            json_size: u16::from_be_bytes(json_size_bytes.try_into().unwrap()) as usize,
-            media_type_size: u8::from_be_bytes(media_type_size_bytes.try_into().unwrap()) as usize,
-            payload_size: u64::from_be_bytes(bytes.try_into().unwrap()) as usize,
+            json_size: u16::from_be_bytes(json_size_bytes.try_into().unwrap()),
+            media_type_size: u8::from_be_bytes(media_type_size_bytes.try_into().unwrap()),
+            payload_size: u64::from_be_bytes(bytes.try_into().unwrap()),
         })
     }
 }
@@ -53,11 +53,11 @@ impl Packet {
         }
     }
 
-    pub fn generate_header(&self) -> PacketHeader {
-        PacketHeader {
-            json_size: self.json.data.to_string().len(),
-            media_type_size: self.media_type.to_string().len(),
-            payload_size: self.payload.media_file_path.metadata().unwrap().len() as usize,
-        }
+    pub fn generate_header(&self) -> anyhow::Result<PacketHeader> {
+        Ok(PacketHeader {
+            json_size: self.json.get_size(),
+            media_type_size: self.media_type.get_size(),
+            payload_size: self.payload.get_size(),
+        })
     }
 }

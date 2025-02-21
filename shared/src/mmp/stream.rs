@@ -19,7 +19,7 @@ impl Stream {
 
     pub fn send_packet(&mut self, packet: &Packet) -> anyhow::Result<()> {
         self.tcp_stream
-            .write_all(&packet.generate_header().generate_bytes())?;
+            .write_all(&packet.generate_header()?.generate_bytes())?;
         self.tcp_stream.write_all(&packet.json.generate_bytes())?;
         self.tcp_stream
             .write_all(&packet.media_type.generate_bytes())?;
@@ -39,16 +39,21 @@ impl Stream {
                 .receive_exact(PacketHeader::HEADER_SIZE_BYTES)?,
         )?;
 
-        let json = Json::generate_from_bytes(&self.tcp_stream.receive_exact(header.json_size)?)?;
+        println!("Header: {:?}", header);
+
+        let json =
+            Json::generate_from_bytes(&self.tcp_stream.receive_exact(header.json_size as usize)?)?;
 
         let media_type = MediaType::generate_from_bytes(
-            &self.tcp_stream.receive_exact(header.media_type_size)?,
+            &self
+                .tcp_stream
+                .receive_exact(header.media_type_size as usize)?,
         )?;
 
         let tmp_file = util::FileDownloader::download_file(
             &mut self.tcp_stream,
             &temp_file_path,
-            header.payload_size,
+            header.payload_size as usize,
             self.max_packet_size,
         )?;
 

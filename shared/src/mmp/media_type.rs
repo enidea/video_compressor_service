@@ -11,6 +11,10 @@ pub enum MediaType {
 impl MediaType {
     pub const HEADER_SIZE_BYTES: usize = 1;
 
+    pub fn get_size(&self) -> u8 {
+        self.to_string().len() as u8
+    }
+
     pub fn generate_bytes(&self) -> Vec<u8> {
         self.to_string().as_bytes().to_vec()
     }
