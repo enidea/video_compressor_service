@@ -6,7 +6,7 @@ use clap::Parser;
 use cli_args::CliArgs;
 use command_prompter::CommandPrompter;
 use serde_json::json;
-use shared::{app, mmp};
+use shared::{app, mmp, util};
 use video_file_validator::VideoFileValidator;
 
 use std::{net::TcpStream, path::Path};
@@ -34,21 +34,24 @@ pub fn run() -> anyhow::Result<()> {
 
     mmp_stream.send_packet(&packet)?;
 
-    // util::FileUploader::upload_file(&mut tcp_stream, &mut video_file)?;
+    let converted_file_path =
+        util::file_path::add_prefix_to_file_path(video_file_path, "converted_")?;
 
-    // let response = mmp::Response::from_bytes(&util::TcpUtil::read_bytes(&mut tcp_stream)?)?;
+    let (response, _converted_file) = mmp_stream.receive_packet(&converted_file_path)?;
 
-    // match response.status {
-    //     mmp::Status::Ok => {
-    //         println!("File uploaded successfully!");
-    //     }
-    //     mmp::Status::BadRequest => {
-    //         eprintln!("Error uploading file!");
-    //     }
-    //     mmp::Status::InternalServerError => {
-    //         eprintln!("Server error!");
-    //     }
-    // }
+    let response_json: mmp::Response = serde_json::from_value(response.json.data)?;
+
+    match response_json.status {
+        mmp::Status::Ok => {
+            println!("File converted successfully!");
+        }
+        mmp::Status::BadRequest => {
+            eprintln!("Error uploading file!");
+        }
+        mmp::Status::InternalServerError => {
+            eprintln!("Server error!");
+        }
+    }
 
     Ok(())
 }

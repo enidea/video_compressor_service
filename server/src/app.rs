@@ -1,5 +1,6 @@
 use std::{fs, net::TcpListener, path::Path};
 
+use serde_json::json;
 use shared::{
     app,
     mmp::{self},
@@ -34,9 +35,17 @@ pub fn run() -> anyhow::Result<()> {
 
                 let (received_packet, temp_file) = mmp_stream.receive_packet(&temp_file_path)?;
 
-                println!("Received packet: {:?}", received_packet);
+                println!("Request: {:?}", received_packet);
 
                 let request_json: app::Request = serde_json::from_value(received_packet.json.data)?;
+
+                let response_packet = mmp::Packet::new(
+                    mmp::Json::new(json!(mmp::Response::new(mmp::Status::Ok)))?,
+                    mmp::MediaType::Mp4,
+                    mmp::Payload::new(temp_file_path)?,
+                );
+
+                mmp_stream.send_packet(&response_packet)?;
             }
             Err(e) => {
                 eprintln!("Error accepting connection: {}", e);

@@ -1,4 +1,5 @@
 pub mod data_size;
+pub mod file_path;
 
 mod file_downloader;
 mod file_uploader;

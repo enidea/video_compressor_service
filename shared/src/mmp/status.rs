@@ -1,7 +1,8 @@
 use enum_primitive_derive::Primitive;
 use num_traits::FromPrimitive;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Copy, Clone, Primitive)]
+#[derive(Debug, Copy, Clone, Primitive, Serialize, Deserialize)]
 pub enum Status {
     Ok = 200,
     BadRequest = 400,
