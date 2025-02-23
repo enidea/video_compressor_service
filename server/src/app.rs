@@ -1,10 +1,9 @@
-use std::{
-    fs,
-    net::TcpListener,
-    path::Path,
-};
+use std::{fs, net::TcpListener, path::Path};
 
-use shared::{app, mmp};
+use shared::{
+    app,
+    mmp::{self},
+};
 
 pub fn run() -> anyhow::Result<()> {
     let app_config = app::Config::new()?;
@@ -33,9 +32,12 @@ pub fn run() -> anyhow::Result<()> {
 
                 let temp_file_path = Path::new(&app_config.download_dir).join(temp_video_file_name);
 
-                let (packet, _temp_file) = mmp_stream.receive_packet(&temp_file_path)?;
+                let (received_packet, temp_file) = mmp_stream.receive_packet(&temp_file_path)?;
 
-                println!("Received packet: {:?}", packet);
+                println!("Received packet: {:?}", received_packet);
+
+                let request_json: app::RequestJson =
+                    serde_json::from_value(received_packet.json.data)?;
             }
             Err(e) => {
                 eprintln!("Error accepting connection: {}", e);

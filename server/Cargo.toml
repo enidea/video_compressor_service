@@ -8,3 +8,4 @@ shared = { path = "../shared" }
 anyhow.workspace = true
 dotenvy.workspace = true
 chrono = "0.4.39"
+serde_json.workspace = true

@@ -9,10 +9,7 @@ use serde_json::json;
 use shared::{app, mmp};
 use video_file_validator::VideoFileValidator;
 
-use std::{
-    net::TcpStream,
-    path::Path,
-};
+use std::{net::TcpStream, path::Path};
 
 pub fn run() -> anyhow::Result<()> {
     let app_config = app::Config::new()?;
@@ -30,9 +27,7 @@ pub fn run() -> anyhow::Result<()> {
     let mut mmp_stream = mmp::Stream::new(tcp_stream, app_config.max_packet_size);
 
     let packet = mmp::Packet::new(
-        mmp::Json::new(json!({
-            "command": command,
-        }))?,
+        mmp::Json::new(json!(app::RequestJson::new(command)))?,
         mmp::MediaType::Mp4,
         mmp::Payload::new(video_file_path.to_path_buf())?,
     );
