@@ -3,11 +3,11 @@ use serde::{Deserialize, Serialize};
 use super::Command;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct RequestJson {
+pub struct Request {
     pub command: Command,
 }
 
-impl RequestJson {
+impl Request {
     pub fn new(command: Command) -> Self {
         Self { command }
     }

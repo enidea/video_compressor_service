@@ -27,7 +27,7 @@ pub fn run() -> anyhow::Result<()> {
     let mut mmp_stream = mmp::Stream::new(tcp_stream, app_config.max_packet_size);
 
     let packet = mmp::Packet::new(
-        mmp::Json::new(json!(app::RequestJson::new(command)))?,
+        mmp::Json::new(json!(app::Request::new(command)))?,
         mmp::MediaType::Mp4,
         mmp::Payload::new(video_file_path.to_path_buf())?,
     );

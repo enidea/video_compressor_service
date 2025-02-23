@@ -36,8 +36,7 @@ pub fn run() -> anyhow::Result<()> {
 
                 println!("Received packet: {:?}", received_packet);
 
-                let request_json: app::RequestJson =
-                    serde_json::from_value(received_packet.json.data)?;
+                let request_json: app::Request = serde_json::from_value(received_packet.json.data)?;
             }
             Err(e) => {
                 eprintln!("Error accepting connection: {}", e);
