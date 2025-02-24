@@ -1,3 +1,5 @@
+mod command_processor;
+
 use std::{fs, net::TcpListener, path::Path};
 
 use serde_json::json;
@@ -38,6 +40,8 @@ pub fn run() -> anyhow::Result<()> {
                 println!("Request: {:?}", received_packet);
 
                 let request_json: app::Request = serde_json::from_value(received_packet.json.data)?;
+
+                command_processor::CommandProcessor::process(request_json.command, temp_file);
 
                 let response_packet = mmp::Packet::new(
                     mmp::Json::new(json!(mmp::Response::new(mmp::Status::Ok)))?,
