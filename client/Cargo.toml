@@ -12,4 +12,3 @@ dialoguer = "0.11.0"
 strum.workspace = true
 strum_macros.workspace = true
 serde_json.workspace = true
-ffmpeg-next = "7.1.0"
