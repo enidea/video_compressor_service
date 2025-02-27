@@ -11,7 +11,6 @@ pub enum Status {
 
 impl Status {
     pub fn try_from_u16(value: u16) -> anyhow::Result<Self> {
-        FromPrimitive::from_u16(value)
-            .ok_or_else(|| anyhow::anyhow!("Invalid status code: {}", value))
+        FromPrimitive::from_u16(value).ok_or(anyhow::anyhow!("Invalid status code: {}", value))
     }
 }
