@@ -1,4 +1,5 @@
 mod command_processor;
+mod transcoder;
 
 use std::{fs, net::TcpListener, path::Path};
 
@@ -35,13 +36,17 @@ pub fn run() -> anyhow::Result<()> {
 
                 let temp_file_path = Path::new(&app_config.download_dir).join(temp_video_file_name);
 
-                let (received_packet, temp_file) = mmp_stream.receive_packet(&temp_file_path)?;
+                let (received_packet, _temp_file) = mmp_stream.receive_packet(&temp_file_path)?;
 
                 println!("Request: {:?}", received_packet);
 
                 let request_json: app::Request = serde_json::from_value(received_packet.json.data)?;
 
-                command_processor::CommandProcessor::process(request_json.command, temp_file);
+                command_processor::CommandProcessor::process(
+                    request_json.command,
+                    &temp_file_path,
+                    &Path::new(&app_config.download_dir).join("output.mp4"),
+                )?;
 
                 let response_packet = mmp::Packet::new(
                     mmp::Json::new(json!(mmp::Response::new(mmp::Status::Ok)))?,
