@@ -26,7 +26,7 @@ pub fn run() -> anyhow::Result<()> {
                     fs::create_dir(&app_config.download_dir)?;
                 }
 
-                let temp_video_file_name = format!(
+                let input_file_name = format!(
                     "{}_{}_{}.{}",
                     app_config.temp_file_name,
                     client_addr,
@@ -34,9 +34,16 @@ pub fn run() -> anyhow::Result<()> {
                     "mp4"
                 );
 
-                let temp_file_path = Path::new(&app_config.download_dir).join(temp_video_file_name);
+                let output_file_name = format! {
+                    "{}_{}",
+                    "output",
+                    input_file_name,
+                };
 
-                let (received_packet, _temp_file) = mmp_stream.receive_packet(&temp_file_path)?;
+                let input_file_path = Path::new(&app_config.download_dir).join(input_file_name);
+                let output_file_path = Path::new(&app_config.download_dir).join(output_file_name);
+
+                let (received_packet, _temp_file) = mmp_stream.receive_packet(&input_file_path)?;
 
                 println!("Request: {:?}", received_packet);
 
@@ -44,14 +51,14 @@ pub fn run() -> anyhow::Result<()> {
 
                 command_processor::CommandProcessor::process(
                     request_json.command,
-                    &temp_file_path,
-                    &Path::new(&app_config.download_dir).join("output.mp4"),
+                    &input_file_path,
+                    &output_file_path,
                 )?;
 
                 let response_packet = mmp::Packet::new(
                     mmp::Json::new(json!(mmp::Response::new(mmp::Status::Ok)))?,
                     mmp::MediaType::Mp4,
-                    mmp::Payload::new(temp_file_path)?,
+                    mmp::Payload::new(output_file_path)?,
                 );
 
                 mmp_stream.send_packet(&response_packet)?;
