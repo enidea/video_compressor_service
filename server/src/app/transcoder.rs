@@ -28,7 +28,7 @@ impl Transcoder {
 
         ost.set_parameters(&encoder);
         encoder.set_height(decoder.height());
-        encoder.set_height(decoder.width());
+        encoder.set_width(decoder.width());
         encoder.set_aspect_ratio(decoder.aspect_ratio());
         encoder.set_format(decoder.format());
         encoder.set_frame_rate(decoder.frame_rate());
