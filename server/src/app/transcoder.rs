@@ -33,6 +33,7 @@ impl Transcoder {
         encoder.set_format(decoder.format());
         encoder.set_frame_rate(decoder.frame_rate());
         encoder.set_time_base(ist.time_base());
+        encoder.set_bit_rate(decoder.bit_rate());
 
         if global_header {
             encoder.set_flags(codec::Flags::GLOBAL_HEADER);
