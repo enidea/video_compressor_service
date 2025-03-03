@@ -9,6 +9,10 @@ pub struct Transcoder {
 }
 
 impl Transcoder {
+    const DEFAULT_FORMAT: format::Pixel = format::Pixel::YUV420P;
+    const DEFAULT_PRESET: &str = "medium";
+    const DEFAULT_CRF: &str = "23";
+
     pub fn new(
         ist: &format::stream::Stream,
         octx: &mut format::context::Output,
@@ -19,6 +23,7 @@ impl Transcoder {
             .decoder()
             .video()?;
 
+        // codec is an algorithm for encoding (compressing) and decoding (decompressing) video and audio data.
         let codec =
             encoder::find(codec::Id::H264).ok_or(anyhow::anyhow!("H.264 codec not found"))?;
 
@@ -30,17 +35,19 @@ impl Transcoder {
         encoder.set_height(decoder.height());
         encoder.set_width(decoder.width());
         encoder.set_aspect_ratio(decoder.aspect_ratio());
-        encoder.set_format(decoder.format());
+        encoder.set_format(Self::DEFAULT_FORMAT);
         encoder.set_frame_rate(decoder.frame_rate());
         encoder.set_time_base(ist.time_base());
         encoder.set_bit_rate(decoder.bit_rate());
+        encoder.set_gop(50);
 
         if global_header {
             encoder.set_flags(codec::Flags::GLOBAL_HEADER);
         }
 
         let mut dict = Dictionary::new();
-        dict.set("preset", "medium");
+        dict.set("preset", Self::DEFAULT_PRESET);
+        dict.set("crf", Self::DEFAULT_CRF);
 
         let opened_encoder = encoder.open_with(dict)?;
 
