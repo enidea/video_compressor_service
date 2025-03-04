@@ -1,6 +1,8 @@
 use anyhow::{Context, Ok};
 use ffmpeg_next::{codec, decoder, encoder, format, frame, picture, Dictionary, Packet, Rational};
 
+use super::transcoder_options::TranscoderOptions;
+
 pub struct Transcoder {
     ost_index: usize,
     decoder: decoder::Video,
@@ -17,6 +19,7 @@ impl Transcoder {
         ist: &format::stream::Stream,
         octx: &mut format::context::Output,
         ost_index: usize,
+        transcoder_options: &TranscoderOptions,
     ) -> anyhow::Result<Self> {
         let global_header = octx.format().flags().contains(format::Flags::GLOBAL_HEADER);
         let decoder = codec::Context::from_parameters(ist.parameters())?
@@ -38,16 +41,21 @@ impl Transcoder {
         encoder.set_format(Self::DEFAULT_FORMAT);
         encoder.set_frame_rate(decoder.frame_rate());
         encoder.set_time_base(ist.time_base());
-        encoder.set_bit_rate(decoder.bit_rate());
-        encoder.set_gop(50);
+        encoder.set_bit_rate(transcoder_options.bitrate.unwrap_or(decoder.bit_rate()));
 
         if global_header {
             encoder.set_flags(codec::Flags::GLOBAL_HEADER);
         }
 
         let mut dict = Dictionary::new();
-        dict.set("preset", Self::DEFAULT_PRESET);
-        dict.set("crf", Self::DEFAULT_CRF);
+
+        dict.set(
+            "preset",
+            transcoder_options
+                .preset
+                .as_deref()
+                .unwrap_or(Self::DEFAULT_PRESET),
+        );
 
         let opened_encoder = encoder.open_with(dict)?;
 
