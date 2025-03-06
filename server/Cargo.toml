@@ -10,3 +10,4 @@ dotenvy.workspace = true
 chrono = "0.4.39"
 serde_json.workspace = true
 ffmpeg-next = "7.1.0"
+derive_builder = "0.20.0"

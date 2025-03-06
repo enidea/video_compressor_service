@@ -3,7 +3,7 @@ use std::path::Path;
 use anyhow::Ok;
 use shared::app;
 
-use super::{converter, transcoder_options::TranscoderOptions};
+use super::{converter, transcoder_options::TranscoderOptionsBuilder};
 
 pub struct CommandProcessor;
 
@@ -16,10 +16,11 @@ impl CommandProcessor {
         ffmpeg_next::init()?;
 
         let transcoder_options = match command {
-            app::Command::Compress => {
-                TranscoderOptions::new(Some(500_000), Some("veryslow".to_string()))
-            }
-            _ => TranscoderOptions::new(None, None),
+            app::Command::Compress => TranscoderOptionsBuilder::default()
+                .bitrate(500_000_usize)
+                .preset("veryslow")
+                .build(),
+            _ => TranscoderOptionsBuilder::default().build(),
             // app::Command::Resize => {
             //     println!("Resizing file...");
             //     Ok(())
@@ -38,7 +39,7 @@ impl CommandProcessor {
             // }
         };
 
-        converter::convert(input_file_path, output_file_path, transcoder_options)?;
+        converter::convert(input_file_path, output_file_path, transcoder_options?)?;
 
         Ok(())
     }
