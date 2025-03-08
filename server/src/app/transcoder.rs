@@ -13,7 +13,6 @@ pub struct Transcoder {
 impl Transcoder {
     const DEFAULT_FORMAT: format::Pixel = format::Pixel::YUV420P;
     const DEFAULT_PRESET: &str = "medium";
-    const DEFAULT_CRF: &str = "23";
 
     pub fn new(
         ist: &format::stream::Stream,
