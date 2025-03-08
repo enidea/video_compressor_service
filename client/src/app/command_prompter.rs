@@ -12,6 +12,22 @@ impl CommandPrompter {
             .items(&commands)
             .interact()?;
 
-        Ok(commands[selection])
+        Ok(match commands[selection] {
+            app::Command::Resize { resolution: _ } => app::Command::Resize {
+                resolution: Self::prompt_resolution()?,
+            },
+            _ => commands[selection],
+        })
+    }
+
+    pub fn prompt_resolution() -> anyhow::Result<app::Resolution> {
+        let resolutions = app::Resolution::iter().collect::<Vec<app::Resolution>>();
+
+        let selection = dialoguer::Select::new()
+            .with_prompt("Select a resolution")
+            .items(&resolutions)
+            .interact()?;
+
+        Ok(resolutions[selection])
     }
 }
