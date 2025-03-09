@@ -15,16 +15,19 @@ impl CommandProcessor {
     ) -> anyhow::Result<()> {
         ffmpeg_next::init()?;
 
-        let transcoder_options = match command {
-            app::Command::Compress => TranscoderOptionsBuilder::default()
-                .bitrate(500_000_usize)
-                .preset("veryslow")
-                .build(),
-            _ => TranscoderOptionsBuilder::default().build(),
-            // app::Command::Resize => {
-            //     println!("Resizing file...");
-            //     Ok(())
-            // }
+        let mut transcoder_options_builder = TranscoderOptionsBuilder::default();
+
+        match command {
+            app::Command::Compress => {
+                transcoder_options_builder
+                    .bitrate(500_000_usize)
+                    .preset("veryslow");
+            }
+            app::Command::Resize { resolution } => {
+                transcoder_options_builder
+                    .width(resolution.get_width())
+                    .height(resolution.get_height());
+            }
             // app::Command::ChangeAspectRatio => {
             //     println!("Changing aspect ratio...");
             //     Ok(())
@@ -37,9 +40,14 @@ impl CommandProcessor {
             //     println!("Converting file to GIF or WebM with time range...");
             //     Ok(())
             // }
+            _ => {}
         };
 
-        converter::convert(input_file_path, output_file_path, transcoder_options?)?;
+        converter::convert(
+            input_file_path,
+            output_file_path,
+            transcoder_options_builder.build()?,
+        )?;
 
         Ok(())
     }

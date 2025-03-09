@@ -34,9 +34,9 @@ impl Transcoder {
         let mut encoder = codec::Context::new_with_codec(codec).encoder().video()?;
 
         ost.set_parameters(&encoder);
-        encoder.set_height(decoder.height());
-        encoder.set_width(decoder.width());
-        encoder.set_aspect_ratio(decoder.aspect_ratio());
+        encoder.set_width(transcoder_options.width.unwrap_or(decoder.width()));
+        encoder.set_height(transcoder_options.height.unwrap_or(decoder.height()));
+        encoder.set_aspect_ratio(Rational::new(encoder.width() as _, encoder.height() as _));
         encoder.set_format(Self::DEFAULT_FORMAT);
         encoder.set_frame_rate(decoder.frame_rate());
         encoder.set_time_base(ist.time_base());

@@ -6,4 +6,8 @@ pub struct TranscoderOptions {
     pub bitrate: Option<usize>,
     #[builder(setter(into, strip_option), default)]
     pub preset: Option<String>,
+    #[builder(setter(into, strip_option), default)]
+    pub width: Option<u32>,
+    #[builder(setter(into, strip_option), default)]
+    pub height: Option<u32>,
 }

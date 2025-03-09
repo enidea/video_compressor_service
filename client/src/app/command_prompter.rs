@@ -13,7 +13,7 @@ impl CommandPrompter {
             .interact()?;
 
         Ok(match commands[selection] {
-            app::Command::Resize { resolution: _ } => app::Command::Resize {
+            app::Command::Resize { .. } => app::Command::Resize {
                 resolution: Self::prompt_resolution()?,
             },
             _ => commands[selection],

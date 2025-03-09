@@ -28,3 +28,29 @@ impl Display for Resolution {
         )
     }
 }
+
+impl Resolution {
+    pub fn get_width(&self) -> u32 {
+        match self {
+            Resolution::Uhd4k => 3840,
+            Resolution::Qhd2k => 2560,
+            Resolution::Fhd1080 => 1920,
+            Resolution::Hd720 => 1280,
+            Resolution::Sd480 => 854,
+        }
+    }
+
+    pub fn get_height(&self) -> u32 {
+        match self {
+            Resolution::Uhd4k => 2160,
+            Resolution::Qhd2k => 1440,
+            Resolution::Fhd1080 => 1080,
+            Resolution::Hd720 => 720,
+            Resolution::Sd480 => 480,
+        }
+    }
+
+    pub fn get_scale(&self) -> String {
+        self.get_width().to_string() + ":" + &self.get_height().to_string()
+    }
+}
