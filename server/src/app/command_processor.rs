@@ -3,7 +3,7 @@ use std::path::Path;
 use anyhow::Ok;
 use shared::app;
 
-use super::{converter, transcoder_options::TranscoderOptionsBuilder};
+use crate::ffmpeg;
 
 pub struct CommandProcessor;
 
@@ -13,7 +13,7 @@ impl CommandProcessor {
         input_file_path: &Path,
         output_file_path: &Path,
     ) -> anyhow::Result<()> {
-        let mut transcoder_options_builder = TranscoderOptionsBuilder::default();
+        let mut transcoder_options_builder = ffmpeg::OptionsBuilder::default();
 
         match command {
             app::Command::Compress => {
@@ -41,7 +41,7 @@ impl CommandProcessor {
             _ => {}
         };
 
-        converter::convert(
+        ffmpeg::convert(
             input_file_path,
             output_file_path,
             transcoder_options_builder.build()?,

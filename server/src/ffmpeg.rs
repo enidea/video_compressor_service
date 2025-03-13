@@ -1,11 +1,14 @@
-use std::path::Path;
+mod options;
 
-use super::transcoder_options::TranscoderOptions;
+use options::Options;
+pub use options::OptionsBuilder;
+
+use std::path::Path;
 
 pub fn convert(
     input_file_path: &Path,
     output_file_path: &Path,
-    transcoder_options: TranscoderOptions,
+    options: Options,
 ) -> anyhow::Result<()> {
     Ok(())
 }

@@ -1,6 +1,4 @@
 mod command_processor;
-mod converter;
-mod transcoder_options;
 
 use std::{fs, net::TcpListener, path::Path};
 
