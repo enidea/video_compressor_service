@@ -1,6 +1,10 @@
 mod command_processor;
 
-use std::{fs, net::TcpListener, path::Path};
+use std::{
+    fs::{self, remove_file},
+    net::TcpListener,
+    path::Path,
+};
 
 use serde_json::json;
 use shared::{
@@ -57,10 +61,13 @@ pub fn run() -> anyhow::Result<()> {
                 let response_packet = mmp::Packet::new(
                     mmp::Json::new(json!(mmp::Response::new(mmp::Status::Ok)))?,
                     mmp::MediaType::Mp4,
-                    mmp::Payload::new(output_file_path)?,
+                    mmp::Payload::new(output_file_path.clone())?,
                 );
 
                 mmp_stream.send_packet(&response_packet)?;
+
+                remove_file(&input_file_path)?;
+                remove_file(&output_file_path)?;
             }
             Err(e) => {
                 eprintln!("Error accepting connection: {}", e);
