@@ -13,8 +13,6 @@ impl CommandProcessor {
         input_file_path: &Path,
         output_file_path: &Path,
     ) -> anyhow::Result<()> {
-        ffmpeg_next::init()?;
-
         let mut transcoder_options_builder = TranscoderOptionsBuilder::default();
 
         match command {
