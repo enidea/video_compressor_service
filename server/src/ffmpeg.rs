@@ -13,7 +13,18 @@ pub fn convert(
     let mut args = vec![
         String::from("-i"),
         input_file_path.to_str().unwrap().to_string(),
+        String::from("-c:v"),
+        String::from("libx264"),
+        String::from("-pix_fmt"),
+        String::from("yuv420p"),
+        String::from("-preset"),
+        options.preset.unwrap_or(String::from("medium")),
     ];
+
+    if let Some(bitrate) = options.bitrate {
+        args.push(String::from("-b:v"));
+        args.push(format!("{}k", bitrate / 1000));
+    }
 
     if let (Some(width), Some(height)) = (options.width, options.height) {
         args.push(String::from("-s"));
