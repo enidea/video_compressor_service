@@ -19,7 +19,7 @@ impl CommandProcessor {
             app::Command::Compress => {
                 transcoder_options_builder
                     .bitrate(500_000_usize)
-                    .preset("slower");
+                    .preset(ffmpeg::Preset::Slower);
             }
             app::Command::Resize { resolution } => {
                 transcoder_options_builder

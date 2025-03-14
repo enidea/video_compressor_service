@@ -2,6 +2,7 @@ mod options;
 
 use options::Options;
 pub use options::OptionsBuilder;
+pub use options::Preset;
 
 use std::{path::Path, process::Command};
 
@@ -18,7 +19,7 @@ pub fn convert(
         String::from("-pix_fmt"),
         String::from("yuv420p"),
         String::from("-preset"),
-        options.preset.unwrap_or(String::from("medium")),
+        options.preset.to_string(),
     ];
 
     if let Some(bitrate) = options.bitrate {
