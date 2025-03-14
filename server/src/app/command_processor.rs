@@ -18,7 +18,7 @@ impl CommandProcessor {
         match command {
             app::Command::Compress => {
                 transcoder_options_builder
-                    .bitrate(500_000_usize)
+                    .crf(ffmpeg::Crf::new(28)?)
                     .preset(ffmpeg::Preset::Slower);
             }
             app::Command::Resize { resolution } => {

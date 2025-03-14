@@ -1,8 +1,7 @@
 mod options;
 
 use options::Options;
-pub use options::OptionsBuilder;
-pub use options::Preset;
+pub use options::*;
 
 use std::{path::Path, process::Command};
 
@@ -20,12 +19,9 @@ pub fn convert(
         String::from("yuv420p"),
         String::from("-preset"),
         options.preset.to_string(),
+        String::from("-crf"),
+        options.crf.value().to_string(),
     ];
-
-    if let Some(bitrate) = options.bitrate {
-        args.push(String::from("-b:v"));
-        args.push(format!("{}k", bitrate / 1000));
-    }
 
     if let (Some(width), Some(height)) = (options.width, options.height) {
         args.push(String::from("-s"));
