@@ -22,9 +22,7 @@ impl CommandProcessor {
                     .preset(ffmpeg::Preset::Slower);
             }
             app::Command::Resize { resolution } => {
-                transcoder_options_builder
-                    .width(resolution.get_width())
-                    .height(resolution.get_height());
+                transcoder_options_builder.resolution(resolution);
             }
             app::Command::ChangeAspectRatio { aspect_ratio } => {
                 transcoder_options_builder.aspect_ratio(aspect_ratio);

@@ -20,7 +20,7 @@ pub enum Resolution {
 }
 
 impl Resolution {
-    pub fn get_width(&self) -> u32 {
+    pub fn width(&self) -> u32 {
         match self {
             Resolution::Uhd4k => 3840,
             Resolution::Qhd2k => 2560,
@@ -30,7 +30,7 @@ impl Resolution {
         }
     }
 
-    pub fn get_height(&self) -> u32 {
+    pub fn height(&self) -> u32 {
         match self {
             Resolution::Uhd4k => 2160,
             Resolution::Qhd2k => 1440,
@@ -41,6 +41,6 @@ impl Resolution {
     }
 
     pub fn get_scale(&self) -> String {
-        self.get_width().to_string() + ":" + &self.get_height().to_string()
+        self.width().to_string() + ":" + &self.height().to_string()
     }
 }

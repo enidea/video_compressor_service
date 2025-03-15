@@ -12,9 +12,7 @@ pub struct Options {
     #[builder(setter(into, strip_option), default = Preset::Medium)]
     pub preset: Preset,
     #[builder(setter(into, strip_option), default)]
-    pub width: Option<u32>,
-    #[builder(setter(into, strip_option), default)]
-    pub height: Option<u32>,
+    pub resolution: Option<shared::app::Resolution>,
     #[builder(setter(into, strip_option), default)]
     pub aspect_ratio: Option<shared::app::AspectRatio>,
 }

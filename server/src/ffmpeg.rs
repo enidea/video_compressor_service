@@ -23,9 +23,9 @@ pub fn convert(
         options.crf.value().to_string(),
     ];
 
-    if let (Some(width), Some(height)) = (options.width, options.height) {
+    if let Some(resolution) = options.resolution {
         args.push(String::from("-s"));
-        args.push(format!("{}x{}", width, height));
+        args.push(format!("{}x{}", resolution.width(), resolution.height()));
     }
 
     if let Some(aspect_ratio) = options.aspect_ratio {
