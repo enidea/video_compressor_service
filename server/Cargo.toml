@@ -10,4 +10,4 @@ dotenvy.workspace = true
 chrono = "0.4.39"
 serde_json.workspace = true
 derive_builder = "0.20.0"
-derive_more = { version = "2.0", features = ["display"] }
+derive_more.workspace = true
