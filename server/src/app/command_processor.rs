@@ -22,14 +22,20 @@ impl CommandProcessor {
                     .preset(ffmpeg::Preset::Slower);
             }
             app::Command::Resize { resolution } => {
-                transcoder_options_builder.resolution(resolution);
+                transcoder_options_builder.resolution(ffmpeg::Resolution::new(
+                    resolution.width(),
+                    resolution.height(),
+                )?);
             }
             app::Command::ChangeAspectRatio {
                 aspect_ratio,
                 aspect_ratio_fit,
             } => {
                 transcoder_options_builder
-                    .aspect_ratio(aspect_ratio)
+                    .aspect_ratio(ffmpeg::AspectRatio::new(
+                        aspect_ratio.width(),
+                        aspect_ratio.height(),
+                    )?)
                     .aspect_ratio_fit(aspect_ratio_fit);
             }
             // app::Command::ConvertToAudio => {

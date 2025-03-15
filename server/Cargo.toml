@@ -12,3 +12,4 @@ serde_json.workspace = true
 derive_builder = "0.20.0"
 derive_more.workspace = true
 ffmpeg-next = "7.1.0"
+num = "0.4.0"
