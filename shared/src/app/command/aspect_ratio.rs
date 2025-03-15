@@ -1,34 +1,22 @@
-use std::fmt::Display;
-
+use derive_more::Display;
 use serde::{Deserialize, Serialize};
 use strum_macros::{EnumIter, EnumString};
 
-#[derive(Debug, Clone, Copy, EnumIter, EnumString, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Copy, EnumIter, EnumString, Serialize, Deserialize, Default, Display)]
 pub enum AspectRatio {
+    #[display("16:9 (Wide Screen)")]
     WideScreen16_9,
+    #[display("4:3 (Standard)")]
     Standard4_3,
+    #[display("21:9 (Cinematic)")]
     Cinematic21_9,
     #[default]
+    #[display("9:16 (Vertical)")]
     Vertical9_16,
+    #[display("1:1 (Square)")]
     Square1_1,
+    #[display("2.35:1 (Cinema)")]
     Cinema2_35_1,
-}
-
-impl Display for AspectRatio {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                AspectRatio::WideScreen16_9 => "16:9 (Wide Screen)",
-                AspectRatio::Standard4_3 => "4:3 (Standard)",
-                AspectRatio::Cinematic21_9 => "21:9 (Cinematic)",
-                AspectRatio::Vertical9_16 => "9:16 (Vertical)",
-                AspectRatio::Square1_1 => "1:1 (Square)",
-                AspectRatio::Cinema2_35_1 => "2.35:1 (Cinema)",
-            }
-        )
-    }
 }
 
 impl AspectRatio {

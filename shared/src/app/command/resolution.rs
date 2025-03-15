@@ -1,32 +1,22 @@
-use std::fmt::Display;
-
+use derive_more::Display;
 use serde::{Deserialize, Serialize};
 use strum_macros::{EnumIter, EnumString};
 
-#[derive(Debug, Clone, Copy, PartialEq, EnumString, EnumIter, Serialize, Deserialize, Default)]
+#[derive(
+    Debug, Clone, Copy, PartialEq, EnumString, EnumIter, Serialize, Deserialize, Default, Display,
+)]
 pub enum Resolution {
+    #[display("4K (3840x2160)")]
     Uhd4k,
+    #[display("2K (2560x1440)")]
     Qhd2k,
     #[default]
+    #[display("1080p (1920x1080)")]
     Fhd1080,
+    #[display("720p (1280x720)")]
     Hd720,
+    #[display("480p (854x480)")]
     Sd480,
-}
-
-impl Display for Resolution {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                Resolution::Uhd4k => "4K (3840x2160)",
-                Resolution::Qhd2k => "2K (2560x1440)",
-                Resolution::Fhd1080 => "1080p (1920x1080)",
-                Resolution::Hd720 => "720p (1280x720)",
-                Resolution::Sd480 => "480p (854x480)",
-            }
-        )
-    }
 }
 
 impl Resolution {
