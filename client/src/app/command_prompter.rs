@@ -16,12 +16,15 @@ impl CommandPrompter {
             app::Command::Resize { .. } => app::Command::Resize {
                 resolution: Self::prompt_resolution()?,
             },
+            app::Command::ChangeAspectRatio { .. } => app::Command::ChangeAspectRatio {
+                aspect_ratio: Self::prompt_aspect_ratio()?,
+            },
             _ => commands[selection],
         })
     }
 
-    pub fn prompt_resolution() -> anyhow::Result<app::Resolution> {
-        let resolutions = app::Resolution::iter().collect::<Vec<app::Resolution>>();
+    fn prompt_resolution() -> anyhow::Result<app::Resolution> {
+        let resolutions = app::Resolution::iter().collect::<Vec<_>>();
 
         let selection = dialoguer::Select::new()
             .with_prompt("Select a resolution")
@@ -29,5 +32,16 @@ impl CommandPrompter {
             .interact()?;
 
         Ok(resolutions[selection])
+    }
+
+    fn prompt_aspect_ratio() -> anyhow::Result<app::AspectRatio> {
+        let aspect_ratios = app::AspectRatio::iter().collect::<Vec<_>>();
+
+        let selection = dialoguer::Select::new()
+            .with_prompt("Select an aspect ratio")
+            .items(&aspect_ratios)
+            .interact()?;
+
+        Ok(aspect_ratios[selection])
     }
 }
