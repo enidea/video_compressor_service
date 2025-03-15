@@ -26,10 +26,9 @@ impl CommandProcessor {
                     .width(resolution.get_width())
                     .height(resolution.get_height());
             }
-            // app::Command::ChangeAspectRatio => {
-            //     println!("Changing aspect ratio...");
-            //     Ok(())
-            // }
+            app::Command::ChangeAspectRatio { aspect_ratio } => {
+                transcoder_options_builder.aspect_ratio(aspect_ratio);
+            }
             // app::Command::ConvertToAudio => {
             //     println!("Converting file to audio...");
             //     Ok(())

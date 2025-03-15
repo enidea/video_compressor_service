@@ -28,6 +28,15 @@ pub fn convert(
         args.push(format!("{}x{}", width, height));
     }
 
+    if let Some(aspect_ratio) = options.aspect_ratio {
+        args.push(String::from("-aspect"));
+        args.push(format!(
+            "{}:{}",
+            aspect_ratio.width(),
+            aspect_ratio.height()
+        ));
+    }
+
     args.push(output_file_path.to_str().unwrap().to_string());
 
     let status = Command::new("ffmpeg").args(args).status()?;

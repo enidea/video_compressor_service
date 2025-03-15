@@ -15,4 +15,6 @@ pub struct Options {
     pub width: Option<u32>,
     #[builder(setter(into, strip_option), default)]
     pub height: Option<u32>,
+    #[builder(setter(into, strip_option), default)]
+    pub aspect_ratio: Option<shared::app::AspectRatio>,
 }

@@ -32,7 +32,7 @@ impl Display for AspectRatio {
 }
 
 impl AspectRatio {
-    pub fn get_width(&self) -> u32 {
+    pub fn width(&self) -> u32 {
         match self {
             AspectRatio::WideScreen16_9 => 16,
             AspectRatio::Standard4_3 => 4,
@@ -44,7 +44,7 @@ impl AspectRatio {
         }
     }
 
-    pub fn get_height(&self) -> u32 {
+    pub fn height(&self) -> u32 {
         match self {
             AspectRatio::WideScreen16_9 => 9,
             AspectRatio::Standard4_3 => 3,
