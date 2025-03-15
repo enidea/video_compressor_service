@@ -1,7 +1,11 @@
+mod aspect_ratio;
+mod resolution;
+
+pub use aspect_ratio::AspectRatio;
+pub use resolution::Resolution;
+
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumIter, EnumString};
-
-use super::{AspectRatio, Resolution};
 
 #[derive(Debug, Clone, Copy, EnumString, EnumIter, Display, Serialize, Deserialize)]
 pub enum Command {
