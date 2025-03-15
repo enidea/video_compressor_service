@@ -1,6 +1,5 @@
 [workspace]
 members = ["client", "server", "shared"]
-rust-version = "1.83.0"
 resolver = "2"
 
 [workspace.dependencies]
