@@ -18,6 +18,7 @@ impl CommandPrompter {
             },
             app::Command::ChangeAspectRatio { .. } => app::Command::ChangeAspectRatio {
                 aspect_ratio: Self::prompt_aspect_ratio()?,
+                aspect_ratio_fit: Self::prompt_aspect_ratio_fit()?,
             },
             _ => commands[selection],
         })
@@ -43,5 +44,16 @@ impl CommandPrompter {
             .interact()?;
 
         Ok(aspect_ratios[selection])
+    }
+
+    fn prompt_aspect_ratio_fit() -> anyhow::Result<app::AspectRatioFit> {
+        let aspect_ratio_fits = app::AspectRatioFit::iter().collect::<Vec<_>>();
+
+        let selection = dialoguer::Select::new()
+            .with_prompt("Select an aspect ratio fit")
+            .items(&aspect_ratio_fits)
+            .interact()?;
+
+        Ok(aspect_ratio_fits[selection])
     }
 }

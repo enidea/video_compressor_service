@@ -24,7 +24,10 @@ impl CommandProcessor {
             app::Command::Resize { resolution } => {
                 transcoder_options_builder.resolution(resolution);
             }
-            app::Command::ChangeAspectRatio { aspect_ratio } => {
+            app::Command::ChangeAspectRatio {
+                aspect_ratio,
+                aspect_ratio_fit: _,
+            } => {
                 transcoder_options_builder.aspect_ratio(aspect_ratio);
             }
             // app::Command::ConvertToAudio => {
