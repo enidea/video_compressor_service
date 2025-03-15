@@ -26,9 +26,11 @@ impl CommandProcessor {
             }
             app::Command::ChangeAspectRatio {
                 aspect_ratio,
-                aspect_ratio_fit: _,
+                aspect_ratio_fit,
             } => {
-                transcoder_options_builder.aspect_ratio(aspect_ratio);
+                transcoder_options_builder
+                    .aspect_ratio(aspect_ratio)
+                    .aspect_ratio_fit(aspect_ratio_fit);
             }
             // app::Command::ConvertToAudio => {
             //     println!("Converting file to audio...");

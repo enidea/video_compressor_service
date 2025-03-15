@@ -15,4 +15,6 @@ pub struct Options {
     pub resolution: Option<shared::app::Resolution>,
     #[builder(setter(into, strip_option), default)]
     pub aspect_ratio: Option<shared::app::AspectRatio>,
+    #[builder(setter(into, strip_option), default)]
+    pub aspect_ratio_fit: Option<shared::app::AspectRatioFit>,
 }

@@ -11,3 +11,4 @@ chrono = "0.4.39"
 serde_json.workspace = true
 derive_builder = "0.20.0"
 derive_more.workspace = true
+ffmpeg-next = "7.1.0"
