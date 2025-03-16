@@ -45,10 +45,10 @@ pub struct Packet {
 }
 
 impl Packet {
-    pub fn new(json: Json, media_type: MediaType, payload: Payload) -> Self {
+    pub fn new(json: Json, payload: Payload) -> Self {
         Self {
             json,
-            media_type,
+            media_type: MediaType::generate_from_path(&payload.media_file_path).unwrap(),
             payload,
         }
     }

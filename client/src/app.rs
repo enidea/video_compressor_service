@@ -28,7 +28,6 @@ pub fn run() -> anyhow::Result<()> {
 
     let packet = mmp::Packet::new(
         mmp::Json::new(json!(app::Request::new(command)))?,
-        mmp::MediaType::Mp4,
         mmp::Payload::new(video_file_path.to_path_buf())?,
     );
 

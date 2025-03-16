@@ -29,28 +29,27 @@ pub fn run() -> anyhow::Result<()> {
                     fs::create_dir(&app_config.download_dir)?;
                 }
 
-                let input_file_name = format!(
-                    "{}_{}_{}.{}",
+                let input_file_name_without_ext = format!(
+                    "{}_{}_{}",
                     app_config.temp_file_name,
                     client_addr,
                     chrono::Local::now().format("%Y%m%d%H%M%S"),
-                    "mp4"
                 );
+
+                let input_file_path_without_ext =
+                    Path::new(&app_config.download_dir).join(input_file_name_without_ext);
+
+                let (received_packet, input_file_path) =
+                    mmp_stream.receive_packet(&input_file_path_without_ext)?;
+
+                let request_json: app::Request = serde_json::from_value(received_packet.json.data)?;
 
                 let output_file_name = format! {
                     "{}_{}",
                     "output",
-                    input_file_name,
+                    input_file_path.file_name().unwrap().to_string_lossy(),
                 };
-
-                let input_file_path = Path::new(&app_config.download_dir).join(input_file_name);
                 let output_file_path = Path::new(&app_config.download_dir).join(output_file_name);
-
-                let (received_packet, _temp_file) = mmp_stream.receive_packet(&input_file_path)?;
-
-                println!("Request: {:?}", received_packet);
-
-                let request_json: app::Request = serde_json::from_value(received_packet.json.data)?;
 
                 command_processor::CommandProcessor::process(
                     request_json.command,
@@ -60,7 +59,6 @@ pub fn run() -> anyhow::Result<()> {
 
                 let response_packet = mmp::Packet::new(
                     mmp::Json::new(json!(mmp::Response::new(mmp::Status::Ok)))?,
-                    mmp::MediaType::Mp4,
                     mmp::Payload::new(output_file_path.clone())?,
                 );
 
