@@ -78,7 +78,7 @@ fn generate_aspect_ratio_filter(
 
     match aspect_ratio_fit {
         shared::app::AspectRatioFit::ForceFit => {
-            format!("scale={}, setdar={}", resolution, aspect_ratio,)
+            format!("scale={}, setsar=1:1", resolution)
         }
         shared::app::AspectRatioFit::BlackPadding => {
             format!("pad={}:(ow-iw)/2:(oh-ih)/2", resolution)

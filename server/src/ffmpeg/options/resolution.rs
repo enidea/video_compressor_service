@@ -13,7 +13,10 @@ impl Resolution {
             anyhow::bail!("Resolution width and height must be greater than 0");
         }
 
-        Ok(Self { width, height })
+        Ok(Self {
+            width,
+            height: shared::util::even::make_even_up(height),
+        })
     }
 
     pub fn width(&self) -> u32 {
