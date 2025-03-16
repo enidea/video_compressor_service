@@ -6,8 +6,10 @@ use strum_macros::EnumString;
 
 #[derive(Debug, Clone, Copy, EnumString, Display)]
 pub enum MediaType {
+    #[strum(serialize = "mp4")]
     #[display("mp4")]
     Mp4,
+    #[strum(serialize = "mp3")]
     #[display("mp3")]
     Mp3,
 }
@@ -17,11 +19,12 @@ impl MediaType {
 
     pub fn generate_from_path(path: &Path) -> anyhow::Result<Self> {
         let extension = path.extension().context("Failed to get file extension")?;
-        let extension = extension
-            .to_str()
-            .context("Failed to convert extension to str")?;
 
-        MediaType::from_str(extension).context("Failed to parse MediaType")
+        extension
+            .to_str()
+            .context("Failed to convert extension to str")?
+            .parse()
+            .context("Failed to parse MediaType")
     }
 
     pub fn get_size(&self) -> u8 {

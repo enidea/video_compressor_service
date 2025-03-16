@@ -36,7 +36,7 @@ pub fn run() -> anyhow::Result<()> {
     let converted_file_path =
         util::file_path::add_prefix_to_file_path(video_file_path, "converted_")?;
 
-    let (response, _converted_file) = mmp_stream.receive_packet(&converted_file_path)?;
+    let response = mmp_stream.receive_packet(&converted_file_path)?;
 
     let response_json: mmp::Response = serde_json::from_value(response.json.data)?;
 
