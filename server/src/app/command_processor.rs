@@ -1,6 +1,5 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
-use anyhow::Ok;
 use shared::app;
 
 use crate::ffmpeg;
@@ -12,7 +11,7 @@ impl CommandProcessor {
         command: app::Command,
         input_file_path: &Path,
         output_file_path: &Path,
-    ) -> anyhow::Result<()> {
+    ) -> anyhow::Result<PathBuf> {
         let mut transcoder_options_builder = ffmpeg::OptionsBuilder::default();
 
         match command {
@@ -38,10 +37,11 @@ impl CommandProcessor {
                     )?)
                     .aspect_ratio_fit(aspect_ratio_fit);
             }
-            // app::Command::ConvertToAudio => {
-            //     println!("Converting file to audio...");
-            //     Ok(())
-            // }
+            app::Command::ConvertToAudio => {
+                transcoder_options_builder
+                    .audio_codec(ffmpeg::AudioCodec::Mp3)
+                    .vbr_quality(ffmpeg::VbrQuality::new(2)?);
+            }
             // app::Command::ConvertToGifOrWebmWithTimeRange => {
             //     println!("Converting file to GIF or WebM with time range...");
             //     Ok(())
@@ -53,8 +53,6 @@ impl CommandProcessor {
             input_file_path,
             output_file_path,
             transcoder_options_builder.build()?,
-        )?;
-
-        Ok(())
+        )
     }
 }

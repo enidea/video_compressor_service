@@ -37,23 +37,22 @@ pub fn run() -> anyhow::Result<()> {
                 );
 
                 let input_file_path_without_ext =
-                    Path::new(&app_config.download_dir).join(input_file_name_without_ext);
+                    Path::new(&app_config.download_dir).join(&input_file_name_without_ext);
+
+                let output_file_name_without_ext = format! {
+                    "{}_{}", "output", input_file_name_without_ext,
+                };
+                let output_file_path_without_ext =
+                    &Path::new(&app_config.download_dir).join(output_file_name_without_ext);
 
                 let received_packet = mmp_stream.receive_packet(&input_file_path_without_ext)?;
                 let input_file_path: &Path = received_packet.payload.media_file_path.as_ref();
                 let request_json: app::Request = serde_json::from_value(received_packet.json.data)?;
 
-                let output_file_name = format! {
-                    "{}_{}",
-                    "output",
-                    input_file_path.file_name().unwrap().to_string_lossy(),
-                };
-                let output_file_path = &Path::new(&app_config.download_dir).join(output_file_name);
-
-                command_processor::CommandProcessor::process(
+                let output_file_path = command_processor::CommandProcessor::process(
                     request_json.command,
                     input_file_path,
-                    output_file_path,
+                    output_file_path_without_ext,
                 )?;
 
                 let response_packet = mmp::Packet::new(

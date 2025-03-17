@@ -3,44 +3,64 @@ mod options;
 use options::Options;
 pub use options::*;
 
-use ffmpeg_next as ffmpeg;
-use std::{path::Path, process::Command};
+use ffmpeg_next::{self as ffmpeg};
+use std::{
+    path::{Path, PathBuf},
+    process::Command,
+};
 
 pub fn convert(
     input_file_path: &Path,
-    output_file_path: &Path,
+    output_file_path_without_ext: &Path,
     options: Options,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<PathBuf> {
     let mut args = vec![
         String::from("-i"),
         input_file_path.to_str().unwrap().to_string(),
-        String::from("-c:v"),
-        String::from("libx264"),
-        String::from("-pix_fmt"),
-        String::from("yuv420p"),
-        String::from("-preset"),
-        options.preset.to_string(),
-        String::from("-crf"),
-        options.crf.value().to_string(),
     ];
+    match options.audio_codec {
+        Some(audio_codec) => {
+            args.push(String::from("-c:a"));
+            args.push(audio_codec.to_string());
 
-    if let Some(resolution) = options.resolution {
-        args.push(String::from("-s"));
-        args.push(format!("{}", resolution));
+            if let Some(vbr_quality) = options.vbr_quality {
+                args.push(String::from("-q:a"));
+                args.push(vbr_quality.value().to_string());
+            }
+        }
+        _ => {
+            args.extend([
+                String::from("-c:v"),
+                String::from("libx264"),
+                String::from("-pix_fmt"),
+                String::from("yuv420p"),
+                String::from("-preset"),
+                options.preset.to_string(),
+                String::from("-crf"),
+                options.crf.value().to_string(),
+            ]);
+
+            if let Some(resolution) = options.resolution {
+                args.push(String::from("-s"));
+                args.push(format!("{}", resolution));
+            }
+
+            if let (Some(aspect_ratio), Some(aspect_ratio_fit)) =
+                (options.aspect_ratio, options.aspect_ratio_fit)
+            {
+                let resolution = get_video_resolution(input_file_path)?;
+
+                args.push(String::from("-vf"));
+                args.push(generate_aspect_ratio_filter(
+                    resolution,
+                    &aspect_ratio,
+                    &aspect_ratio_fit,
+                ));
+            }
+        }
     }
 
-    if let (Some(aspect_ratio), Some(aspect_ratio_fit)) =
-        (options.aspect_ratio, options.aspect_ratio_fit)
-    {
-        let resolution = get_video_resolution(input_file_path)?;
-
-        args.push(String::from("-vf"));
-        args.push(generate_aspect_ratio_filter(
-            resolution,
-            &aspect_ratio,
-            &aspect_ratio_fit,
-        ));
-    }
+    let output_file_path = generate_output_file_path_from(output_file_path_without_ext, options);
 
     args.push(output_file_path.to_str().unwrap().to_string());
 
@@ -53,7 +73,7 @@ pub fn convert(
         return Err(anyhow::anyhow!("Failed to convert the file"));
     }
 
-    Ok(())
+    Ok(output_file_path)
 }
 
 fn generate_aspect_ratio_filter(
@@ -100,4 +120,17 @@ fn get_video_resolution(video_file_path: &Path) -> anyhow::Result<Resolution> {
     }
 
     Err(anyhow::anyhow!("Failed to get the video resolution"))
+}
+
+fn generate_output_file_path_from(
+    output_file_path_without_ext: &Path,
+    options: Options,
+) -> PathBuf {
+    let extension = if let Some(audio_codec) = options.audio_codec {
+        audio_codec.extension_str()
+    } else {
+        "mp4"
+    };
+
+    output_file_path_without_ext.with_extension(extension)
 }
