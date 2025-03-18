@@ -14,6 +14,27 @@ pub fn convert(
     output_file_path_without_ext: &Path,
     options: Options,
 ) -> anyhow::Result<PathBuf> {
+    let output_file_path = generate_output_file_path_from(output_file_path_without_ext, &options);
+
+    let args = generate_args(input_file_path, &output_file_path, &options)?;
+
+    let mut command = Command::new("ffmpeg");
+    command.args(&args);
+
+    println!("command: {:?}", &command);
+
+    if !command.status()?.success() {
+        return Err(anyhow::anyhow!("Failed to convert the file"));
+    }
+
+    Ok(output_file_path)
+}
+
+fn generate_args(
+    input_file_path: &Path,
+    output_file_path: &Path,
+    options: &Options,
+) -> anyhow::Result<Vec<String>> {
     let mut args = vec![
         String::from("-i"),
         input_file_path.to_str().unwrap().to_string(),
@@ -60,20 +81,9 @@ pub fn convert(
         }
     }
 
-    let output_file_path = generate_output_file_path_from(output_file_path_without_ext, options);
-
     args.push(output_file_path.to_str().unwrap().to_string());
 
-    let mut command = Command::new("ffmpeg");
-    command.args(&args);
-
-    println!("command: {:?}", &command);
-
-    if !command.status()?.success() {
-        return Err(anyhow::anyhow!("Failed to convert the file"));
-    }
-
-    Ok(output_file_path)
+    Ok(args)
 }
 
 fn generate_aspect_ratio_filter(
@@ -124,7 +134,7 @@ fn get_video_resolution(video_file_path: &Path) -> anyhow::Result<Resolution> {
 
 fn generate_output_file_path_from(
     output_file_path_without_ext: &Path,
-    options: Options,
+    options: &Options,
 ) -> PathBuf {
     let extension = if let Some(audio_codec) = options.audio_codec {
         audio_codec.extension_str()
