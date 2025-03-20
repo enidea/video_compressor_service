@@ -96,13 +96,39 @@ impl CommandPrompter {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::CommandPrompter;
+
+    fn assert_parse_time(input: &str, expected: u32) {
+        assert_eq!(CommandPrompter::parse_time(input).unwrap(), expected);
+    }
+
+    fn assert_parse_time_error(input: &str) {
+        assert!(CommandPrompter::parse_time(input).is_err());
+    }
 
     #[test]
-    fn test_parse_time() {
-        assert_eq!(CommandPrompter::parse_time("3600").unwrap(), 3600);
-        assert_eq!(CommandPrompter::parse_time("01:23:45").unwrap(), 5025);
-        assert_eq!(CommandPrompter::parse_time("12:34").unwrap(), 754);
-        assert_eq!(CommandPrompter::parse_time("01:01").unwrap(), 61);
+    fn test_parse_time_valid_inputs() {
+        assert_parse_time("01:23:45", 5025);
+        assert_parse_time("12:34", 754);
+        assert_parse_time("3600", 3600);
+        assert_parse_time("01:01:01", 3661);
+        assert_parse_time("1:1:1", 3661);
+        assert_parse_time("01:01", 61);
+        assert_parse_time("1:01", 61);
+        assert_parse_time("01", 1);
+        assert_parse_time("00:00:00", 0);
+        assert_parse_time("00:00", 0);
+        assert_parse_time("0", 0);
+        assert_parse_time("59", 59);
+        assert_parse_time("59:59", 3599);
+        assert_parse_time("23:59:59", 86399);
+    }
+
+    #[test]
+    fn test_parse_time_invalid_inputs() {
+        assert_parse_time_error("abc");
+        assert_parse_time_error("01:23:45:67");
+        assert_parse_time_error(":30");
+        assert_parse_time_error("1::30");
     }
 }
