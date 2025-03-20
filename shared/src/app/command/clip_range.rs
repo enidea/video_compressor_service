@@ -8,7 +8,6 @@ pub struct ClipRange {
 
 impl ClipRange {
     pub fn new(start: u32, end: u32) -> anyhow::Result<Self> {
-        println!("start: {}, end: {}", start, end);
         if start >= end {
             anyhow::bail!("Clip range start must be less than end");
         }

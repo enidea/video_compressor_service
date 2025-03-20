@@ -42,11 +42,12 @@ impl CommandProcessor {
                     .audio_codec(ffmpeg::AudioCodec::Mp3)
                     .vbr_quality(ffmpeg::VbrQuality::new(2)?);
             }
-            // app::Command::ConvertToGifOrWebmWithTimeRange => {
-            //     println!("Converting file to GIF or WebM with time range...");
-            //     Ok(())
-            // }
-            _ => {}
+            app::Command::ConvertToGifOrWebmWithTimeRange { clip_range } => {
+                transcoder_options_builder.clip_range(ffmpeg::ClipRange::new(
+                    clip_range.start(),
+                    clip_range.end(),
+                )?);
+            }
         };
 
         ffmpeg::convert(

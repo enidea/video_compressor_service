@@ -78,6 +78,13 @@ fn generate_args(
                     &aspect_ratio_fit,
                 ));
             }
+
+            if let Some(clip_range) = options.clip_range {
+                args.push(String::from("-ss"));
+                args.push(clip_range.formatted_start());
+                args.push(String::from("-to"));
+                args.push(clip_range.formatted_end());
+            }
         }
     }
 

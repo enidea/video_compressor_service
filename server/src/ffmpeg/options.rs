@@ -1,5 +1,6 @@
 mod aspect_ratio;
 mod audio_codec;
+mod clip_range;
 mod crf;
 mod preset;
 mod resolution;
@@ -7,6 +8,7 @@ mod vbr_quality;
 
 pub use aspect_ratio::AspectRatio;
 pub use audio_codec::AudioCodec;
+pub use clip_range::ClipRange;
 pub use crf::Crf;
 pub use preset::Preset;
 pub use resolution::Resolution;
@@ -29,4 +31,6 @@ pub struct Options {
     pub audio_codec: Option<AudioCodec>,
     #[builder(setter(into, strip_option), default)]
     pub vbr_quality: Option<VbrQuality>,
+    #[builder(setter(into, strip_option), default)]
+    pub clip_range: Option<ClipRange>,
 }
