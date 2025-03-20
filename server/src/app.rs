@@ -46,6 +46,9 @@ pub fn run() -> anyhow::Result<()> {
                     &Path::new(&app_config.download_dir).join(output_file_name_without_ext);
 
                 let received_packet = mmp_stream.receive_packet(&input_file_path_without_ext)?;
+
+                println!("Received packet: {:?}", received_packet);
+
                 let input_file_path: &Path = received_packet.payload.media_file_path.as_ref();
                 let request_json: app::Request = serde_json::from_value(received_packet.json.data)?;
 

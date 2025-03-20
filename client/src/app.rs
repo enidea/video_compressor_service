@@ -31,7 +31,7 @@ pub fn run() -> anyhow::Result<()> {
         mmp::Payload::new(video_file_path.to_path_buf())?,
     );
 
-    mmp_stream.send_packet(&packet)?;
+    mmp_stream.send_packet(&packet,)?;
 
     let converted_file_path =
         util::file_path::add_prefix_to_file_path(video_file_path, "converted_")?;
