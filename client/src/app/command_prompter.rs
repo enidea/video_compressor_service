@@ -130,5 +130,6 @@ mod tests {
         assert_parse_time_error("01:23:45:67");
         assert_parse_time_error(":30");
         assert_parse_time_error("1::30");
+        assert_parse_time_error("24:00:00");
     }
 }
