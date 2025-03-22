@@ -23,20 +23,24 @@ impl CommandProcessor {
         match command {
             app::Command::Compress => {
                 transcoder_options_builder
+                    .codec(ffmpeg::Codec::H264)
                     .crf(ffmpeg::Crf::new(28)?)
                     .preset(ffmpeg::Preset::Slower);
             }
             app::Command::Resize { resolution } => {
-                transcoder_options_builder.resolution(ffmpeg::Resolution::new(
-                    resolution.width(),
-                    resolution.height(),
-                )?);
+                transcoder_options_builder
+                    .codec(ffmpeg::Codec::H264)
+                    .resolution(ffmpeg::Resolution::new(
+                        resolution.width(),
+                        resolution.height(),
+                    )?);
             }
             app::Command::ChangeAspectRatio {
                 aspect_ratio,
                 aspect_ratio_fit,
             } => {
                 transcoder_options_builder
+                    .codec(ffmpeg::Codec::H264)
                     .aspect_ratio(ffmpeg::AspectRatio::new(
                         aspect_ratio.width(),
                         aspect_ratio.height(),

@@ -47,7 +47,10 @@ fn generate_args(
         _ => {
             args.extend([
                 String::from("-c:v"),
-                String::from("libx264"),
+                options
+                    .codec
+                    .ok_or_else(|| anyhow::anyhow!("No codec specified"))?
+                    .to_string(),
                 String::from("-pix_fmt"),
                 String::from("yuv420p"),
                 String::from("-preset"),
