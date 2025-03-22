@@ -21,11 +21,10 @@ impl CommandPrompter {
                 aspect_ratio: Self::prompt_aspect_ratio()?,
                 aspect_ratio_fit: Self::prompt_aspect_ratio_fit()?,
             },
-            app::Command::ConvertToGifOrWebmWithTimeRange { .. } => {
-                app::Command::ConvertToGifOrWebmWithTimeRange {
-                    clip_range: Self::prompt_clip_range()?,
-                }
-            }
+            app::Command::Clip { .. } => app::Command::Clip {
+                clip_range: Self::prompt_clip_range()?,
+                media_type: Self::prompt_media_type_for_clip()?,
+            },
             _ => commands[selection],
         })
     }
@@ -91,6 +90,17 @@ impl CommandPrompter {
         }
 
         anyhow::bail!("Invalid time format")
+    }
+
+    fn prompt_media_type_for_clip() -> anyhow::Result<app::MediaTypeForClip> {
+        let media_types = app::MediaTypeForClip::iter().collect::<Vec<_>>();
+
+        let selection = dialoguer::Select::new()
+            .with_prompt("Select a media type")
+            .items(&media_types)
+            .interact()?;
+
+        Ok(media_types[selection])
     }
 }
 

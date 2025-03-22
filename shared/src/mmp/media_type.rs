@@ -12,6 +12,12 @@ pub enum MediaType {
     #[strum(serialize = "mp3")]
     #[display("mp3")]
     Mp3,
+    #[strum(serialize = "gif")]
+    #[display("gif")]
+    Gif,
+    #[strum(serialize = "webm")]
+    #[display("webm")]
+    Webm,
 }
 
 impl MediaType {

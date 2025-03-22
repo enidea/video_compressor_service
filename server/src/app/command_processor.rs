@@ -42,7 +42,10 @@ impl CommandProcessor {
                     .audio_codec(ffmpeg::AudioCodec::Mp3)
                     .vbr_quality(ffmpeg::VbrQuality::new(2)?);
             }
-            app::Command::ConvertToGifOrWebmWithTimeRange { clip_range } => {
+            app::Command::Clip {
+                clip_range,
+                media_type,
+            } => {
                 transcoder_options_builder.clip_range(ffmpeg::ClipRange::new(
                     clip_range.start(),
                     clip_range.end(),
