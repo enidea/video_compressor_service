@@ -10,9 +10,15 @@ impl CommandProcessor {
     pub fn process(
         command: app::Command,
         input_file_path: &Path,
-        output_file_path: &Path,
+        output_file_path_without_ext: &Path,
     ) -> anyhow::Result<PathBuf> {
         let mut transcoder_options_builder = ffmpeg::OptionsBuilder::default();
+        let mut extension = input_file_path
+            .extension()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .to_owned();
 
         match command {
             app::Command::Compress => {
@@ -41,6 +47,8 @@ impl CommandProcessor {
                 transcoder_options_builder
                     .audio_codec(ffmpeg::AudioCodec::Mp3)
                     .vbr_quality(ffmpeg::VbrQuality::new(2)?);
+
+                extension = shared::mmp::MediaType::Mp3.to_string();
             }
             app::Command::Clip {
                 clip_range,
@@ -50,13 +58,22 @@ impl CommandProcessor {
                     clip_range.start(),
                     clip_range.end(),
                 )?);
+
+                extension = match media_type {
+                    shared::app::MediaTypeForClip::Gif => shared::mmp::MediaType::Gif.to_string(),
+                    shared::app::MediaTypeForClip::Webm => shared::mmp::MediaType::Webm.to_string(),
+                }
             }
         };
 
+        let output_file_path = output_file_path_without_ext.with_extension(extension);
+
         ffmpeg::convert(
             input_file_path,
-            output_file_path,
+            &output_file_path,
             transcoder_options_builder.build()?,
-        )
+        )?;
+
+        Ok(output_file_path)
     }
 }

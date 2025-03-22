@@ -4,19 +4,14 @@ use options::Options;
 pub use options::*;
 
 use ffmpeg_next::{self as ffmpeg};
-use std::{
-    path::{Path, PathBuf},
-    process::Command,
-};
+use std::{path::Path, process::Command};
 
 pub fn convert(
     input_file_path: &Path,
-    output_file_path_without_ext: &Path,
+    output_file_path: &Path,
     options: Options,
-) -> anyhow::Result<PathBuf> {
-    let output_file_path = generate_output_file_path_from(output_file_path_without_ext, &options);
-
-    let args = generate_args(input_file_path, &output_file_path, &options)?;
+) -> anyhow::Result<()> {
+    let args = generate_args(input_file_path, output_file_path, &options)?;
 
     let mut command = Command::new("ffmpeg");
     command.args(&args);
@@ -27,7 +22,7 @@ pub fn convert(
         return Err(anyhow::anyhow!("Failed to convert the file"));
     }
 
-    Ok(output_file_path)
+    Ok(())
 }
 
 fn generate_args(
@@ -59,6 +54,8 @@ fn generate_args(
                 options.preset.to_string(),
                 String::from("-crf"),
                 options.crf.value().to_string(),
+                String::from("-b:v"),
+                String::from("0"),
             ]);
 
             if let Some(resolution) = options.resolution {
@@ -137,17 +134,4 @@ fn get_video_resolution(video_file_path: &Path) -> anyhow::Result<Resolution> {
     }
 
     Err(anyhow::anyhow!("Failed to get the video resolution"))
-}
-
-fn generate_output_file_path_from(
-    output_file_path_without_ext: &Path,
-    options: &Options,
-) -> PathBuf {
-    let extension = if let Some(audio_codec) = options.audio_codec {
-        audio_codec.extension_str()
-    } else {
-        "mp4"
-    };
-
-    output_file_path_without_ext.with_extension(extension)
 }
