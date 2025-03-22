@@ -23,13 +23,15 @@ impl CommandProcessor {
         match command {
             app::Command::Compress => {
                 transcoder_options_builder
-                    .codec(ffmpeg::Codec::H264)
+                    .video_codec(ffmpeg::VideoCodec::H264)
                     .crf(ffmpeg::Crf::new(28)?)
                     .preset(ffmpeg::Preset::Slower);
             }
             app::Command::Resize { resolution } => {
                 transcoder_options_builder
-                    .codec(ffmpeg::Codec::H264)
+                    .video_codec(ffmpeg::VideoCodec::H264)
+                    .crf(ffmpeg::Crf::default())
+                    .preset(ffmpeg::Preset::Medium)
                     .resolution(ffmpeg::Resolution::new(
                         resolution.width(),
                         resolution.height(),
@@ -40,7 +42,9 @@ impl CommandProcessor {
                 aspect_ratio_fit,
             } => {
                 transcoder_options_builder
-                    .codec(ffmpeg::Codec::H264)
+                    .video_codec(ffmpeg::VideoCodec::H264)
+                    .crf(ffmpeg::Crf::default())
+                    .preset(ffmpeg::Preset::Medium)
                     .aspect_ratio(ffmpeg::AspectRatio::new(
                         aspect_ratio.width(),
                         aspect_ratio.height(),
@@ -63,9 +67,18 @@ impl CommandProcessor {
                     clip_range.end(),
                 )?);
 
-                extension = match media_type {
-                    shared::app::MediaTypeForClip::Gif => shared::mmp::MediaType::Gif.to_string(),
-                    shared::app::MediaTypeForClip::Webm => shared::mmp::MediaType::Webm.to_string(),
+                match media_type {
+                    shared::app::MediaTypeForClip::Gif => {
+                        extension = shared::mmp::MediaType::Gif.to_string();
+                    }
+                    shared::app::MediaTypeForClip::Webm => {
+                        extension = shared::mmp::MediaType::Webm.to_string();
+
+                        transcoder_options_builder
+                            .video_codec(ffmpeg::VideoCodec::Vp9)
+                            .audio_codec(ffmpeg::AudioCodec::Opus)
+                            .crf(ffmpeg::Crf::new(30)?);
+                    }
                 }
             }
         };

@@ -34,58 +34,78 @@ fn generate_args(
         String::from("-i"),
         input_file_path.to_str().unwrap().to_string(),
     ];
-    match options.audio_codec {
-        Some(audio_codec) => {
-            args.push(String::from("-c:a"));
-            args.push(audio_codec.to_string());
 
-            if let Some(vbr_quality) = options.vbr_quality {
-                args.push(String::from("-q:a"));
-                args.push(vbr_quality.value().to_string());
-            }
-        }
-        _ => {
-            args.extend([
-                String::from("-c:v"),
-                options
-                    .codec
-                    .ok_or_else(|| anyhow::anyhow!("No codec specified"))?
-                    .to_string(),
-                String::from("-pix_fmt"),
-                String::from("yuv420p"),
-                String::from("-preset"),
-                options.preset.to_string(),
-                String::from("-crf"),
-                options.crf.value().to_string(),
-                String::from("-b:v"),
-                String::from("0"),
-            ]);
+    if let Some(video_codec) = options.video_codec {
+        args.push(String::from("-c:v"));
+        args.push(video_codec.to_string());
 
-            if let Some(resolution) = options.resolution {
-                args.push(String::from("-s"));
-                args.push(format!("{}", resolution));
-            }
-
-            if let (Some(aspect_ratio), Some(aspect_ratio_fit)) =
-                (options.aspect_ratio, options.aspect_ratio_fit)
-            {
-                let resolution = get_video_resolution(input_file_path)?;
-
-                args.push(String::from("-vf"));
-                args.push(generate_aspect_ratio_filter(
-                    resolution,
-                    &aspect_ratio,
-                    &aspect_ratio_fit,
+        if let Some(preset) = options.preset {
+            if !video_codec.allowed_presets().contains(&preset) {
+                return Err(anyhow::anyhow!(
+                    "The preset {} is not allowed for the codec {}",
+                    preset,
+                    video_codec
                 ));
             }
 
-            if let Some(clip_range) = options.clip_range {
-                args.push(String::from("-ss"));
-                args.push(clip_range.formatted_start());
-                args.push(String::from("-to"));
-                args.push(clip_range.formatted_end());
-            }
+            args.push(String::from("-preset"));
+            args.push(preset.to_string());
         }
+
+        if let Some(pixel_format) = options.pixel_format {
+            if !video_codec.allowed_pixel_formats().contains(&pixel_format) {
+                return Err(anyhow::anyhow!(
+                    "The pixel format {} is not allowed for the codec {}",
+                    pixel_format,
+                    video_codec
+                ));
+            }
+
+            args.push(String::from("-pix_fmt"));
+            args.push(pixel_format.to_string());
+        }
+    }
+
+    if let Some(crf) = options.crf {
+        args.push(String::from("-crf"));
+        args.push(crf.value().to_string());
+        args.push(String::from("-b:v"));
+        args.push(String::from("0"));
+    }
+
+    if let Some(resolution) = options.resolution {
+        args.push(String::from("-s"));
+        args.push(format!("{}", resolution));
+    }
+
+    if let (Some(aspect_ratio), Some(aspect_ratio_fit)) =
+        (options.aspect_ratio, options.aspect_ratio_fit)
+    {
+        let resolution = get_video_resolution(input_file_path)?;
+
+        args.push(String::from("-vf"));
+        args.push(generate_aspect_ratio_filter(
+            resolution,
+            &aspect_ratio,
+            &aspect_ratio_fit,
+        ));
+    }
+
+    if let Some(clip_range) = options.clip_range {
+        args.push(String::from("-ss"));
+        args.push(clip_range.formatted_start());
+        args.push(String::from("-to"));
+        args.push(clip_range.formatted_end());
+    }
+
+    if let Some(audio_codec) = options.audio_codec {
+        args.push(String::from("-c:a"));
+        args.push(audio_codec.to_string());
+    }
+
+    if let Some(vbr_quality) = options.vbr_quality {
+        args.push(String::from("-q:a"));
+        args.push(vbr_quality.value().to_string());
     }
 
     args.push(output_file_path.to_str().unwrap().to_string());

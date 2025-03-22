@@ -3,6 +3,12 @@ pub struct Crf {
     value: u8,
 }
 
+impl Default for Crf {
+    fn default() -> Self {
+        Self::new(23).unwrap()
+    }
+}
+
 impl Crf {
     pub fn new(value: u8) -> anyhow::Result<Self> {
         if !(0..=51).contains(&value) {
