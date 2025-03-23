@@ -1,9 +1,13 @@
 {
   "cSpell.words": [
+    "lanczos",
+    "lavfi",
     "libmp3lame",
     "libopus",
     "libvpx",
     "libx",
+    "palettegen",
+    "paletteuse",
     "setdar",
     "setsar",
     "Timelike"

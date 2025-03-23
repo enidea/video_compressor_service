@@ -13,16 +13,7 @@ pub fn convert(
 ) -> anyhow::Result<()> {
     let args = generate_args(input_file_path, output_file_path, &options)?;
 
-    let mut command = Command::new("ffmpeg");
-    command.args(&args);
-
-    println!("command: {:?}", &command);
-
-    if !command.status()?.success() {
-        return Err(anyhow::anyhow!("Failed to convert the file"));
-    }
-
-    Ok(())
+    execute_command(generate_ffmpeg_command(&args))
 }
 
 fn generate_args(
@@ -108,6 +99,14 @@ fn generate_args(
         args.push(vbr_quality.value().to_string());
     }
 
+    if output_file_path.extension().unwrap() == "gif" {
+        args.push(String::from("-vf"));
+        args.push(String::from(
+            "[0:v] fps=10,scale=480:-1:flags=lanczos,split [a][b]; \
+            [a] palettegen [p]; [b][p] paletteuse",
+        ));
+    };
+
     args.push(output_file_path.to_str().unwrap().to_string());
 
     Ok(args)
@@ -157,4 +156,21 @@ fn get_video_resolution(video_file_path: &Path) -> anyhow::Result<Resolution> {
     }
 
     Err(anyhow::anyhow!("Failed to get the video resolution"))
+}
+
+fn generate_ffmpeg_command(args: &[String]) -> Command {
+    let mut command = Command::new("ffmpeg");
+    command.args(args);
+
+    command
+}
+
+fn execute_command(mut command: Command) -> anyhow::Result<()> {
+    println!("command: {:?}", &command);
+
+    if !command.status()?.success() {
+        return Err(anyhow::anyhow!("Failed to execute the ffmpeg command"));
+    }
+
+    Ok(())
 }
