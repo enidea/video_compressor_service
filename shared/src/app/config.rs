@@ -1,7 +1,7 @@
 use anyhow::{Context, Ok};
 use config::Environment;
 
-#[derive(Debug, serde::Deserialize)]
+#[derive(Debug, serde::Deserialize, Clone)]
 pub struct Config {
     pub server_addr: String,
     pub download_dir: String,
