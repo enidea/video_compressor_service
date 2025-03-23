@@ -1,7 +1,7 @@
 mod command_processor;
 
 use std::{
-    fs::{self, remove_file},
+    fs::{self, remove_dir_all},
     net::TcpListener,
     path::Path,
 };
@@ -25,25 +25,18 @@ pub fn run() -> anyhow::Result<()> {
 
                 let mut mmp_stream = mmp::Stream::new(tcp_stream, app_config.max_packet_size);
 
-                if !Path::new(&app_config.download_dir).exists() {
-                    fs::create_dir(&app_config.download_dir)?;
-                }
-
-                let input_file_name_without_ext = format!(
-                    "{}_{}_{}",
-                    app_config.temp_file_name,
+                let download_dir_path = Path::new(&app_config.download_dir).join(format!(
+                    "{}_{}",
                     client_addr.to_string().replace(".", "_"),
                     chrono::Local::now().format("%Y%m%d%H%M%S"),
-                );
+                ));
 
-                let input_file_path_without_ext =
-                    Path::new(&app_config.download_dir).join(&input_file_name_without_ext);
+                if !download_dir_path.exists() {
+                    fs::create_dir(&download_dir_path)?;
+                }
 
-                let output_file_name_without_ext = format! {
-                    "{}_{}", "output", input_file_name_without_ext,
-                };
-                let output_file_path_without_ext =
-                    &Path::new(&app_config.download_dir).join(output_file_name_without_ext);
+                let input_file_path_without_ext = download_dir_path.join("input");
+                let output_file_path_without_ext = download_dir_path.join("output");
 
                 let received_packet = mmp_stream.receive_packet(&input_file_path_without_ext)?;
 
@@ -55,7 +48,7 @@ pub fn run() -> anyhow::Result<()> {
                 let output_file_path = command_processor::CommandProcessor::process(
                     request_json.command,
                     input_file_path,
-                    output_file_path_without_ext,
+                    &output_file_path_without_ext,
                 )?;
 
                 let response_packet = mmp::Packet::new(
@@ -65,8 +58,7 @@ pub fn run() -> anyhow::Result<()> {
 
                 mmp_stream.send_packet(&response_packet)?;
 
-                remove_file(input_file_path)?;
-                remove_file(output_file_path)?;
+                remove_dir_all(&download_dir_path)?;
             }
             Err(e) => {
                 eprintln!("Error accepting connection: {}", e);
