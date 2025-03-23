@@ -13,6 +13,14 @@ impl ClipRange {
         Ok(Self { start, end })
     }
 
+    pub fn start(&self) -> u32 {
+        self.start
+    }
+
+    pub fn end(&self) -> u32 {
+        self.end
+    }
+
     pub fn formatted_start(&self) -> String {
         format!(
             "{}",

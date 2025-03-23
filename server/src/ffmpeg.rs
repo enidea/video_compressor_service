@@ -67,6 +67,20 @@ fn generate_args(
     }
 
     if let Some(clip_range) = options.clip_range {
+        let duration = get_video_duration_in_seconds(input_file_path)?;
+
+        if clip_range.start() > duration {
+            return Err(anyhow::anyhow!(
+                "The start of the clip range must be less than the video duration"
+            ));
+        }
+
+        if clip_range.end() > duration {
+            return Err(anyhow::anyhow!(
+                "The end of the clip range must be less than the video duration"
+            ));
+        }
+
         args.push(String::from("-ss"));
         args.push(clip_range.formatted_start());
         args.push(String::from("-to"));
@@ -140,6 +154,14 @@ fn get_video_resolution(video_file_path: &Path) -> anyhow::Result<Resolution> {
     }
 
     Err(anyhow::anyhow!("Failed to get the video resolution"))
+}
+
+fn get_video_duration_in_seconds(video_file_path: &Path) -> anyhow::Result<u32> {
+    ffmpeg::init()?;
+
+    let input = ffmpeg::format::input(&video_file_path)?;
+
+    Ok((input.duration() as f64 / ffmpeg::ffi::AV_TIME_BASE as f64) as u32)
 }
 
 fn generate_ffmpeg_command(args: &[String]) -> Command {
