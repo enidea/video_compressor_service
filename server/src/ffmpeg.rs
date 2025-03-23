@@ -31,27 +31,11 @@ fn generate_args(
         args.push(video_codec.to_string());
 
         if let Some(preset) = options.preset {
-            if !video_codec.allowed_presets().contains(&preset) {
-                return Err(anyhow::anyhow!(
-                    "The preset {} is not allowed for the codec {}",
-                    preset,
-                    video_codec
-                ));
-            }
-
             args.push(String::from("-preset"));
             args.push(preset.to_string());
         }
 
         if let Some(pixel_format) = options.pixel_format {
-            if !video_codec.allowed_pixel_formats().contains(&pixel_format) {
-                return Err(anyhow::anyhow!(
-                    "The pixel format {} is not allowed for the codec {}",
-                    pixel_format,
-                    video_codec
-                ));
-            }
-
             args.push(String::from("-pix_fmt"));
             args.push(pixel_format.to_string());
         }

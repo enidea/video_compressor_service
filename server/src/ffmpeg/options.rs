@@ -20,6 +20,7 @@ pub use video_codec::VideoCodec;
 
 use derive_builder::Builder;
 #[derive(Debug, Clone, Builder)]
+#[builder(build_fn(validate = "Self::validate"))]
 pub struct Options {
     #[builder(setter(into, strip_option), default)]
     pub video_codec: Option<VideoCodec>,
@@ -50,5 +51,41 @@ impl OptionsBuilder {
                 .flatten()
                 .and_then(|vc| vc.default_pixel_format())
         })
+    }
+
+    fn validate(&self) -> anyhow::Result<(), String> {
+        let video_codec = self.video_codec.flatten();
+        let pixel_format = self.pixel_format.flatten();
+        let preset = self.preset.flatten();
+
+        if video_codec.is_some()
+            && pixel_format.is_some()
+            && !video_codec
+                .unwrap()
+                .allowed_pixel_formats()
+                .contains(&pixel_format.unwrap())
+        {
+            return Err(format!(
+                "The pixel format {} is not allowed for the video codec {}",
+                pixel_format.unwrap(),
+                video_codec.unwrap()
+            ));
+        }
+
+        if video_codec.is_some()
+            && preset.is_some()
+            && !video_codec
+                .unwrap()
+                .allowed_presets()
+                .contains(&preset.unwrap())
+        {
+            return Err(format!(
+                "The preset {} is not allowed for the video codec {}",
+                preset.unwrap(),
+                video_codec.unwrap()
+            ));
+        }
+
+        Ok(())
     }
 }
