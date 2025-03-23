@@ -21,13 +21,17 @@ impl Stream {
         self.tcp_stream
             .write_all(&packet.generate_header()?.generate_bytes())?;
         self.tcp_stream.write_all(&packet.json.generate_bytes())?;
-        self.tcp_stream
-            .write_all(&packet.media_type.generate_bytes())?;
 
-        util::FileUploader::upload_file(
-            &mut self.tcp_stream.stream,
-            &mut File::open(&packet.payload.media_file_path)?,
-        )?;
+        if let Some(media_type) = &packet.media_type {
+            self.tcp_stream.write_all(&media_type.generate_bytes())?;
+        }
+
+        if let Some(payload) = &packet.payload {
+            util::FileUploader::upload_file(
+                &mut self.tcp_stream.stream,
+                &mut File::open(&payload.media_file_path)?,
+            )?;
+        }
 
         Ok(())
     }
@@ -44,11 +48,15 @@ impl Stream {
         let json =
             Json::generate_from_bytes(&self.tcp_stream.receive_exact(header.json_size as usize)?)?;
 
-        let media_type = MediaType::generate_from_bytes(
-            &self
-                .tcp_stream
-                .receive_exact(header.media_type_size as usize)?,
-        )?;
+        let media_type_bytes = self
+            .tcp_stream
+            .receive_exact(header.media_type_size as usize)?;
+
+        if media_type_bytes.is_empty() {
+            return Ok(Packet::new(json, None));
+        }
+
+        let media_type = MediaType::generate_from_bytes(&media_type_bytes)?;
 
         let file_path_with_extension = file_path.with_extension(media_type.to_string());
 
@@ -61,7 +69,7 @@ impl Stream {
 
         Ok(Packet::new(
             json,
-            Payload::new(file_path_with_extension.to_path_buf())?,
+            Some(Payload::new(file_path_with_extension.to_path_buf())?),
         ))
     }
 }

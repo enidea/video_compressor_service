@@ -28,10 +28,10 @@ pub fn run() -> anyhow::Result<()> {
 
     let packet = mmp::Packet::new(
         mmp::Json::new(json!(app::Request::new(command)))?,
-        mmp::Payload::new(video_file_path.to_path_buf())?,
+        Some(mmp::Payload::new(video_file_path.to_path_buf())?),
     );
 
-    mmp_stream.send_packet(&packet,)?;
+    mmp_stream.send_packet(&packet)?;
 
     let converted_file_path =
         util::file_path::add_prefix_to_file_path(video_file_path, "converted_")?;
@@ -40,12 +40,15 @@ pub fn run() -> anyhow::Result<()> {
 
     let response_json: mmp::Response = serde_json::from_value(response.json.data)?;
 
-    match response_json.status {
+    match &response_json.status {
         mmp::Status::Ok => {
             println!("File converted successfully!");
         }
         mmp::Status::BadRequest => {
             eprintln!("Error uploading file!");
+            if let Some(message) = response_json.message.as_ref() {
+                eprintln!("Error message: {}", message)
+            }
         }
         mmp::Status::InternalServerError => {
             eprintln!("Server error!");

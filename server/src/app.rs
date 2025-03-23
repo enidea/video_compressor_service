@@ -7,6 +7,7 @@ use std::{
     path::Path,
 };
 
+use serde_json::json;
 use shared::{app, mmp};
 use tcp_stream_handler::TcpStreamHandler;
 
@@ -33,7 +34,18 @@ pub fn run() -> anyhow::Result<()> {
                     create_dir_all(&download_dir_path)?;
                 }
 
-                if let Err(_error) = TcpStreamHandler::handle(&mut mmp_stream, &download_dir_path) {
+                if let Err(error) = TcpStreamHandler::handle(&mut mmp_stream, &download_dir_path) {
+                    println!("Error: {}", error);
+
+                    let response_packet = mmp::Packet::new(
+                        mmp::Json::new(json!(mmp::Response::new(
+                            mmp::Status::BadRequest,
+                            Some(error.to_string())
+                        )))?,
+                        None,
+                    );
+
+                    mmp_stream.send_packet(&response_packet)?;
                     remove_dir_all(&download_dir_path)?;
                 }
             }

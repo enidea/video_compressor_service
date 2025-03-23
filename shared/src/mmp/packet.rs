@@ -40,15 +40,17 @@ impl PacketHeader {
 #[derive(Debug)]
 pub struct Packet {
     pub json: Json,
-    pub media_type: MediaType,
-    pub payload: Payload,
+    pub media_type: Option<MediaType>,
+    pub payload: Option<Payload>,
 }
 
 impl Packet {
-    pub fn new(json: Json, payload: Payload) -> Self {
+    pub fn new(json: Json, payload: Option<Payload>) -> Self {
+        let media_type = payload.as_ref().map(|payload| MediaType::generate_from_path(&payload.media_file_path).unwrap());
+
         Self {
             json,
-            media_type: MediaType::generate_from_path(&payload.media_file_path).unwrap(),
+            media_type,
             payload,
         }
     }
@@ -56,8 +58,14 @@ impl Packet {
     pub fn generate_header(&self) -> anyhow::Result<PacketHeader> {
         Ok(PacketHeader {
             json_size: self.json.get_size(),
-            media_type_size: self.media_type.get_size(),
-            payload_size: self.payload.get_size(),
+            media_type_size: match &self.media_type {
+                Some(media_type) => media_type.get_size(),
+                None => 0,
+            },
+            payload_size: match &self.payload {
+                Some(payload) => payload.get_size(),
+                None => 0,
+            },
         })
     }
 }
